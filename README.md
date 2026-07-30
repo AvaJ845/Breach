@@ -2,9 +2,7 @@
 
 A native SwiftUI iOS app for **tracking data-breach settlements and class-action claims** — the calm, privacy-first counterpart to loud “payout” apps.
 
-Named per the ASO playbook: **Home Screen `Breach Kit`**, App Store listing **`Breach Tracker - Breach Kit`**.
 
-Marketing / legal (same North Star pattern as [Hummingbird](https://avaj845.github.io/Hummingbirdv1/)):
 **https://avaj845.github.io/Breach/**
 
 > Breach Kit organizes public settlement information. It is **not** a law firm, claims administrator, or guarantee of payment.
