@@ -1,4 +1,9 @@
-// Shared build settings
+// Breach Kit — base build configuration.
+// Per-developer signing (Apple Developer Team ID) lives in Signing.xcconfig,
+// which is gitignored. The optional include means fresh clones and CI still
+// generate/build (simulator builds don't need a team).
+#include? "Signing.xcconfig"
+
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
 SWIFT_VERSION = 5.9
 TARGETED_DEVICE_FAMILY = 1,2

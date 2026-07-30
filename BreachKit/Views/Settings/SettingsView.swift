@@ -4,6 +4,12 @@ struct SettingsView: View {
     @Bindable var store: BreachStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var legalDoc: LegalDoc?
+
+    private enum LegalDoc: String, Identifiable {
+        case privacy, terms
+        var id: String { rawValue }
+    }
 
     var body: some View {
         NavigationStack {
@@ -39,13 +45,19 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Legal") {
+                    Button("Privacy Policy") { legalDoc = .privacy }
+                    Button("Terms of Use") { legalDoc = .terms }
+                    Button("Open Privacy Policy online") {
+                        openURL(AppLegal.privacyPolicyURL)
+                    }
+                }
+
                 Section("About") {
                     LabeledContent("App", value: "Breach Kit")
                     LabeledContent("Version", value: appVersion)
-                    Button("Privacy Policy") {
-                        if let url = URL(string: "https://avaj845.github.io/BreachKit/privacy.html") {
-                            openURL(url)
-                        }
+                    Button("Support & marketing site") {
+                        openURL(AppLegal.marketingURL)
                     }
                 }
 
@@ -60,6 +72,14 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
+                }
+            }
+            .sheet(item: $legalDoc) { doc in
+                switch doc {
+                case .privacy:
+                    LegalDocumentView(title: "Privacy Policy", resourceName: AppLegal.privacyResourceName)
+                case .terms:
+                    LegalDocumentView(title: "Terms of Use", resourceName: AppLegal.termsResourceName)
                 }
             }
         }

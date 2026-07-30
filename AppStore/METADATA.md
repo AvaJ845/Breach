@@ -40,13 +40,23 @@ Breach Kit helps you **find, watch, and claim** class-action and data-breach set
 First release: Wallet overview, settlement catalog, private on-device email scan, deadline reminders, and happy-moment review prompts.
 
 ## URLs
-- **Support / Marketing:** https://avaj845.github.io/BreachKit/
-- **Privacy Policy:** https://avaj845.github.io/BreachKit/privacy.html
+- **Support / Marketing:** https://avaj845.github.io/Breach/
+- **Privacy Policy:** https://avaj845.github.io/Breach/privacy.html
+- **Terms of Use (EULA):** https://avaj845.github.io/Breach/terms.html (or Apple standard EULA)
+
+## Screenshots (6.9" — 1320×2868, in this folder)
+1. `01_wallet.png` — "Claim cash, calmly."
+2. `02_detail.png` — "Deadlines you can trust."
+3. `03_scan.png` — "Private by design."
+4. `04_settlements.png` — "Every open window."
+5. `05_privacy.png` — "No account. No tracking."
+
+App icon: `AppIcon-1024.png` (1024×1024, no alpha, full-bleed square — Apple applies the mask).
 
 ## App Privacy (nutrition label)
-- **Data collected:** None. No account, no analytics SDKs.
+- **Data collected:** None. No account, no analytics/tracking SDKs.
 - Optional local notifications for deadlines you watch.
 - Email addresses used for scans are stored only on-device if you save them.
 
 ## Review notes (paste into App Review)
-Breach Kit is a **personal organizer** for publicly described settlement opportunities. Sample catalog data is illustrative for demo/review. The app does not file claims, provide legal advice, or connect to third-party claims administrators beyond opening user-tapped Safari links.
+Breach Kit is a **personal organizer** for publicly described settlement opportunities. The catalog may include curated/illustrative listings for demo and review. The app does not file claims, provide legal advice, connect to third-party claims administrators beyond opening user-tapped Safari links, or guarantee payment. Privacy Policy: https://avaj845.github.io/Breach/privacy.html

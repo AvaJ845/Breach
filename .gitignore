@@ -4,6 +4,8 @@
 DerivedData/
 build/
 build-device/
+build-rel/
 xcuserdata/
 *.xcuserstate
 .swiftpm/
+Config/Signing.xcconfig

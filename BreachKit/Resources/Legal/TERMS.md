@@ -1,0 +1,35 @@
+# Breach Kit Terms of Use
+
+**Last updated:** July 30, 2026
+
+## Personal organizer — not legal advice
+
+Breach Kit helps you organize **publicly described** data-breach and class-action settlement opportunities. It is for personal tracking only.
+
+Breach Kit is **not** a law firm, claims administrator, attorney referral service, or guarantee of payment. It does **not** file claims for you. Always verify eligibility, deadlines, and award amounts on the official claim site.
+
+## Catalog data
+
+Settlement listings in the app may include curated or illustrative information (company, estimated award ranges, deadlines). Amounts and dates can change. Official administrators are the source of truth.
+
+## Acceptable use
+
+Do not misuse the app, attempt to disrupt services, or present Breach Kit as legal counsel or a claims-filing service.
+
+## Disclaimer of warranties
+
+The app is provided “as is.” We do not warrant that settlement information will be complete, current, or suitable for any purpose.
+
+## Limitation of liability
+
+To the maximum extent permitted by law, the developer is not liable for missed deadlines, denied claims, or decisions made using the app.
+
+## Apple’s Licensed Application End User License
+
+If you downloaded Breach Kit from the App Store, Apple’s Licensed Application End User License Agreement also applies:
+
+https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+## Contact
+
+Support contact is listed on the App Store product page.
