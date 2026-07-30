@@ -139,6 +139,45 @@ enum SampleBreaches {
                 dataTypes: ["Card last4", "Store visits"],
                 claimURL: URL(string: "https://www.target.com"),
                 year: 2025
+            ),
+            Breach(
+                id: "linkedin-scraping-2025",
+                company: "LinkedIn",
+                title: "Profile data scraping settlement",
+                summary: "Members whose public profile data was allegedly scraped may claim a cash award from the settlement fund.",
+                estimatedPayout: 30,
+                deadline: date(2026, 10, 22),
+                requiresProof: false,
+                category: .tech,
+                dataTypes: ["Profile", "Email", "Connections metadata"],
+                claimURL: URL(string: "https://www.linkedin.com"),
+                year: 2025
+            ),
+            Breach(
+                id: "anthem-phi-2025",
+                company: "Anthem",
+                title: "Health records exposure fund",
+                summary: "Insured members notified of PHI exposure can file for credit monitoring and a cash award.",
+                estimatedPayout: 75,
+                deadline: date(2026, 12, 8),
+                requiresProof: false,
+                category: .healthcare,
+                dataTypes: ["PHI", "Member ID", "SSN"],
+                claimURL: URL(string: "https://www.anthem.com"),
+                year: 2025
+            ),
+            Breach(
+                id: "capital-one-2025",
+                company: "Capital One",
+                title: "Cardholder data incident settlement",
+                summary: "Eligible cardholders may submit a claim for reimbursement of documented losses or a flat award.",
+                estimatedPayout: 50,
+                deadline: date(2026, 9, 5),
+                requiresProof: true,
+                category: .finance,
+                dataTypes: ["Card data", "Credit application"],
+                claimURL: URL(string: "https://www.capitalone.com"),
+                year: 2025
             )
         ]
     }()

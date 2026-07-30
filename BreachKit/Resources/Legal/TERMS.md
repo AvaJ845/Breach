@@ -12,6 +12,25 @@ Breach Kit is **not** a law firm, claims administrator, attorney referral servic
 
 Settlement listings in the app may include curated or illustrative information (company, estimated award ranges, deadlines). Amounts and dates can change. Official administrators are the source of truth.
 
+## Breach Kit Pro (subscription)
+
+Optional **Breach Kit Pro** unlocks tracking convenience:
+
+- Unlimited settlement watches (Free includes a small watch limit)
+- A 7 / 3 / 1-day local deadline reminder ladder
+- Custom settlements you add yourself
+- Wallet summary sharing
+
+### Subscription (auto-renewable)
+
+- **Monthly:** $3.99/month with a **7-day free trial**
+- **Yearly:** $24.99/year with a **7-day free trial** (best value)
+- Payment is charged to your Apple ID at confirmation of purchase.
+- A free trial converts to a paid period unless cancelled at least 24 hours before it ends.
+- Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period.
+- Manage or cancel in **Settings → Apple ID → Subscriptions**.
+- Pro does **not** mean legal advice, claim filing, or guaranteed payment.
+
 ## Acceptable use
 
 Do not misuse the app, attempt to disrupt services, or present Breach Kit as legal counsel or a claims-filing service.

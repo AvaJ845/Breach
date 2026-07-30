@@ -1,72 +1,60 @@
 # Breach Kit — Release Checklist
 
-Everything to take Breach Kit from "ready" to "live on the App Store." Legal pages,
-icons, screenshots, and listing copy are in the repo — the rest is account/config work
-(~3–5 focused hours + short waits). Do the steps in order.
+Everything to take Breach Kit from "ready" to "live on the App Store."
 
 **Key facts**
 - Bundle ID: `com.avaresearch.breachkit`
-- Home Screen name: **Breach Kit** · App Store name: **Breach Tracker - Breach Kit**
-- Signing: your **paid** Apple Developer Program team. Set it locally in `Config/Signing.xcconfig` — gitignored; copy from `Config/Signing.xcconfig.example`.
-- Assets: `AppStore/` (five 1320×2868 screenshots, `AppIcon-1024.png`, `METADATA.md`)
-- Legal / marketing: `docs/` via GitHub Pages → `https://avaj845.github.io/Breach/{privacy,terms}.html`
+- Home Screen: **Breach Kit** · Listing: **Breach Tracker - Breach Kit**
+- Subscriptions (group `Breach Kit Pro`):
+  - Monthly (primary): `com.avaresearch.breachkit.pro.monthly` — **$3.99/mo**, 7-day free trial
+  - Yearly: `com.avaresearch.breachkit.pro.yearly` — **$24.99/yr**, 7-day free trial
+- Signing: `Config/Signing.xcconfig` (gitignored; copy from example)
+- Assets: `AppStore/` · Legal: `https://avaj845.github.io/Breach/`
 
 ---
 
-## 0 · Before anything (Apple / D&B clock — start early)
-- [ ] **Apple Developer Program — Organization**, $99/yr.
-- [ ] **D-U-N-S** for the LLC if enrolling as Organization.
-- [ ] Watch for Apple’s verification call.
+## 0 · Account clock
+- [ ] Apple Developer Program (Organization) + D-U-N-S if needed
 
-## 1 · Legal pages must return HTTP 200 before submit
-GitHub Pages on this repo (`/docs`):
-- [ ] `https://avaj845.github.io/Breach/`
+## 1 · Legal pages HTTP 200
+- [ ] Pages: branch `main` / folder `/docs`
 - [ ] `https://avaj845.github.io/Breach/privacy.html`
 - [ ] `https://avaj845.github.io/Breach/terms.html`
 
-Enable: GitHub → **Settings → Pages → Deploy from branch `main` / folder `/docs`**.
+## 2 · Agreements, Tax & Banking
+- [ ] Paid Apps agreement + bank/tax (required for subscriptions)
 
-## 2 · App Store Connect — account
-- [ ] **Agreements, Tax & Banking** complete (even for a free app — needed if you add IAP later).
+## 3 · App record
+- [ ] Bundle ID `com.avaresearch.breachkit`
+- [ ] Listing name / subtitle / keywords from `AppStore/METADATA.md`
+- [ ] Privacy Policy URL + Support URL
+- [ ] Nutrition label: **Data Not Collected**
+- [ ] 6.9″ screenshots + 1024 icon
 
-## 3 · Create the app record
-[App Store Connect](https://appstoreconnect.apple.com) → **Apps → +**
-- [ ] Platform iOS · Name **Breach Kit** · Primary language English · Bundle ID `com.avaresearch.breachkit` · SKU e.g. `breachkit-001`
-- [ ] **App Store Name (listing):** `Breach Tracker - Breach Kit`
-- [ ] **Subtitle:** `Settlements & class actions`
-- [ ] **Category:** Utilities (primary), Finance (secondary) · **Age:** 4+
-- [ ] Description / promo / keywords → paste from `AppStore/METADATA.md`
-- [ ] **Privacy Policy URL:** `https://avaj845.github.io/Breach/privacy.html`
-- [ ] **Support URL:** `https://avaj845.github.io/Breach/`
-- [ ] **App Privacy** nutrition label: **Data Not Collected**
-- [ ] Upload **5 screenshots** from `AppStore/` to the **6.9″** slot + 1024 icon (`AppIcon-1024.png`)
-- [ ] EULA: Apple Standard, or `https://avaj845.github.io/Breach/terms.html`
+## 4 · Subscriptions
+Apps → Breach Kit → **Subscriptions** → group **Breach Kit Pro**:
+- [ ] Monthly `com.avaresearch.breachkit.pro.monthly` · $3.99 · 1 Month · **7-day free trial**
+- [ ] Yearly `com.avaresearch.breachkit.pro.yearly` · $24.99 · 1 Year · **7-day free trial**
+- [ ] Both **Ready to Submit** · review screenshot · localization from METADATA
+- [ ] EULA: Apple Standard or Terms URL
 
-## 4 · Build & upload (Release)
+## 5 · Archive & upload
 ```bash
-cd /path/to/BreachKit
 xcodegen generate
-# set Config/Signing.xcconfig DEVELOPMENT_TEAM
+# set DEVELOPMENT_TEAM in Config/Signing.xcconfig
 ```
-Xcode → **Any iOS Device (arm64)** → **Product → Archive** → **Distribute App → App Store Connect → Upload**.
+Xcode → Any iOS Device → Archive → Distribute → App Store Connect.
 
-## 5 · Submit for review
-- [ ] Attach the processed build.
-- [ ] **App Review notes:** paste the block from `AppStore/METADATA.md`
-      (personal organizer, sample/curated catalog, not a law firm, no claims filing).
-- [ ] **Submit.** Typical review ~24–48h.
+Attach `Products.storekit` for local Sandbox testing (scheme already wired).
 
----
+## 6 · Submit
+- [ ] Attach build + subscriptions
+- [ ] Paste Review notes from `METADATA.md`
+- [ ] Submit
 
-## Sanity checks (shipped in repo)
-- [x] Privacy manifest (`PrivacyInfo.xcprivacy`) — no tracking, UserDefaults CA92.1
-- [x] Bundled + hosted Privacy / Terms
-- [x] Happy-moment review prompt (never at launch)
-- [x] Dark + tinted App Icon variants
-- [x] 6.9″ screenshot set (1320×2868)
-- [x] ASO metadata (keyword-first name, deduped keyword array)
-
-## Optional after launch
-- [ ] Capture live Simulator screenshots to replace marketing composites (A/B via Product Page Optimization).
-- [ ] App Preview video (15–30s) of Wallet → Claimed.
-- [ ] Optional Breach Kit Pro for richer alerts / unlimited watches.
+## Sanity checks (in repo)
+- [x] StoreKit 2 + monthly-first paywall
+- [x] Free tier useful (3 watches, browse, scan, 3-day reminder)
+- [x] Privacy manifest · bundled + hosted legal
+- [x] Happy-moment review prompt
+- [x] DEBUG Pro unlock omitted from Release logic path

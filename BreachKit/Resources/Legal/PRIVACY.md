@@ -31,6 +31,10 @@ Opening an official claim site uses Safari (or your default browser). Those site
 
 Breach Kit is not directed at children under 13.
 
+## Purchases
+
+Optional **Breach Kit Pro** subscriptions are processed by **Apple**. Apple’s privacy policy applies to payment data. Breach Kit only learns whether Pro is active via StoreKit entitlements.
+
 ## Changes
 
 We may update this policy. The “Last updated” date will change when we do.

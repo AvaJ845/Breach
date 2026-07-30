@@ -3,10 +3,14 @@ import StoreKit
 
 struct BreachDetailView: View {
     @Bindable var store: BreachStore
+    @Bindable var entitlements: EntitlementStore
     let breach: Breach
+    var onShowPaywall: (String) -> Void
+
     @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
     @State private var notes: String = ""
+    @State private var celebrateClaimed = false
 
     private var claim: Claim? { store.claim(for: breach.id) }
 
@@ -28,6 +32,7 @@ struct BreachDetailView: View {
         .onAppear {
             notes = claim?.notes ?? ""
         }
+        .sensoryFeedback(.success, trigger: celebrateClaimed)
     }
 
     private var hero: some View {
@@ -57,6 +62,7 @@ struct BreachDetailView: View {
                         .foregroundStyle(.secondary)
                     Text(Formatters.money(breach.estimatedPayout))
                         .font(.title.weight(.bold).monospacedDigit())
+                        .minimumScaleFactor(0.7)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
@@ -72,6 +78,7 @@ struct BreachDetailView: View {
             }
             .padding(16)
             .background(Theme.softSurface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .accessibilityElement(children: .combine)
 
             if let claim {
                 StatusBadge(status: claim.status)
@@ -86,6 +93,9 @@ struct BreachDetailView: View {
             LabeledContent("Settlement year", value: "\(breach.year)")
             LabeledContent("Proof of purchase", value: breach.requiresProof ? "May increase award" : "Not required for base tier")
             LabeledContent("Status window", value: breach.isOpen ? "Open for claims" : "Closed")
+            if breach.id.hasPrefix("custom-") {
+                LabeledContent("Source", value: "Added by you")
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -123,7 +133,9 @@ struct BreachDetailView: View {
                 .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .onChange(of: notes) { _, value in
                     guard claim != nil || !value.isEmpty else { return }
-                    if claim == nil { store.watch(breach) }
+                    if claim == nil {
+                        guard tryWatch() else { return }
+                    }
                     store.setNotes(breach.id, notes: value)
                 }
             Text("Notes stay on this device.")
@@ -139,13 +151,10 @@ struct BreachDetailView: View {
         VStack(spacing: 10) {
             if claim == nil {
                 Button {
-                    store.watch(breach)
-                    store.markNotified(breach.id)
-                    Task {
-                        await NotificationService.scheduleDeadlineReminders(
-                            for: store.activeClaims,
-                            enabled: store.notifyDeadlines
-                        )
+                    if tryWatch() {
+                        store.markNotified(breach.id)
+                        Haptics.success()
+                        Task { await reschedule() }
                     }
                 } label: {
                     labelButton("Watch & remind me", systemImage: "bell.badge")
@@ -155,9 +164,12 @@ struct BreachDetailView: View {
             } else if claim?.status == .watching || claim?.status == .notified {
                 Button {
                     let happy = store.markClaimed(breach.id)
+                    celebrateClaimed.toggle()
+                    Haptics.success()
                     if happy, ReviewPrompt.registerSuccessAndShouldRequest() {
                         requestReview()
                     }
+                    Task { await reschedule() }
                 } label: {
                     labelButton("Mark as claimed", systemImage: "checkmark.circle.fill")
                 }
@@ -166,6 +178,7 @@ struct BreachDetailView: View {
 
                 Button {
                     store.markPaid(breach.id)
+                    Haptics.medium()
                 } label: {
                     labelButton("Mark as paid", systemImage: "banknote")
                 }
@@ -173,6 +186,7 @@ struct BreachDetailView: View {
             } else if claim?.status == .claimed {
                 Button {
                     store.markPaid(breach.id)
+                    Haptics.success()
                 } label: {
                     labelButton("Mark as paid", systemImage: "banknote.fill")
                 }
@@ -182,7 +196,7 @@ struct BreachDetailView: View {
 
             if let url = breach.claimURL {
                 Button {
-                    if claim == nil { store.watch(breach) }
+                    if claim == nil { _ = tryWatch() }
                     openURL(url)
                 } label: {
                     labelButton("Open claim site", systemImage: "safari")
@@ -194,6 +208,8 @@ struct BreachDetailView: View {
                 Button(role: .destructive) {
                     store.removeClaim(breach.id)
                     notes = ""
+                    Haptics.light()
+                    Task { await reschedule() }
                 } label: {
                     labelButton("Remove from wallet", systemImage: "trash")
                 }
@@ -214,6 +230,26 @@ struct BreachDetailView: View {
         Label(title, systemImage: systemImage)
             .frame(maxWidth: .infinity)
     }
+
+    @discardableResult
+    private func tryWatch() -> Bool {
+        if store.claim(for: breach.id) != nil { return true }
+        if store.wouldCountAsNewWatch(for: breach.id),
+           !entitlements.canWatchMore(currentWatchCount: store.watchCount) {
+            onShowPaywall("You've used all \(FreeTierLimits.maxWatches) free watches. Unlock unlimited with Pro.")
+            return false
+        }
+        store.watch(breach)
+        return true
+    }
+
+    private func reschedule() async {
+        await NotificationService.scheduleDeadlineReminders(
+            for: store.activeClaims,
+            enabled: store.notifyDeadlines,
+            offsets: entitlements.reminderOffsets
+        )
+    }
 }
 
 /// Simple wrapping layout for data-type chips.
@@ -221,8 +257,7 @@ struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        return result.size
+        arrange(proposal: proposal, subviews: subviews).size
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {

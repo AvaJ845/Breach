@@ -14,25 +14,17 @@ Marketing / legal (same North Star pattern as [Hummingbird](https://avaj845.gith
 - **Wallet** — estimated recovery, claimed / notified / watching counts, In Progress & Finished lists
 - **Settlements** — curated catalog with deadlines, estimated awards, proof badges, categories, search
 - **Scan** — on-device email check against the catalog (no upload, no account)
-- **Reminders** — local notifications 3 days before watched deadlines
+- **Reminders** — Free: 3-day local ping · Pro: 7/3/1-day ladder
 - **Happy-moment reviews** — `requestReview` only after successful claim/scan milestones
+- **Breach Kit Pro** — StoreKit 2, **$3.99/month** (primary, 7-day trial) or **$24.99/year** (7-day trial); unlimited watches, reminder ladder, custom settlements, Wallet share
+- **Polish** — due-this-week, haptics, empty-state CTAs, accessibility labels, expanded catalog
 - **Private by design** — privacy manifest, bundled + hosted Privacy/Terms, no analytics, no login
-
-## App Store package
-
-| Item | Location |
-|---|---|
-| 6.9″ screenshots (1320×2868) | `AppStore/01_*.png` … `05_*.png` |
-| 1024 icon | `AppStore/AppIcon-1024.png` (+ dark/tinted in asset catalog) |
-| Listing copy | `AppStore/METADATA.md` |
-| ASO playbook | `AppStore/ASO_PLAYBOOK.md` |
-| Release checklist | `RELEASE.md` |
-| GitHub Pages | `docs/` |
 
 ## Project layout
 
-- `BreachKit/` — app (Models, Services, Support, Views, Legal, PrivacyInfo)
-- `BreachKitTests/` — unit + compliance tests
+- `BreachKit/` — app (Models, Services, Support, Views, Monetization, Legal, PrivacyInfo)
+- `BreachKitTests/` — unit + compliance + pricing tests
+- `Products.storekit` — local StoreKit configuration for Sandbox QA
 - `AppStore/` — screenshots, icon, metadata
 - `docs/` — marketing site + privacy + terms
 

@@ -2,6 +2,9 @@ import SwiftUI
 
 struct SettingsView: View {
     @Bindable var store: BreachStore
+    @Bindable var entitlements: EntitlementStore
+    var onShowPaywall: () -> Void
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var legalDoc: LegalDoc?
@@ -14,6 +17,28 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section("Breach Kit Pro") {
+                    if entitlements.isPro {
+                        Label("Pro active", systemImage: "checkmark.seal.fill")
+                            .foregroundStyle(Theme.accent)
+                        Text("Unlimited watches · 7/3/1-day reminders · custom settlements · Wallet share")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Button {
+                            onShowPaywall()
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Upgrade to Pro")
+                                    .font(.headline)
+                                Text("$\(AppPricing.monthlyUSD)/mo after a 7-day free trial · or $\(AppPricing.yearlyUSD)/yr")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+
                 Section("Reminders") {
                     Toggle("Deadline reminders", isOn: $store.notifyDeadlines)
                         .onChange(of: store.notifyDeadlines) { _, enabled in
@@ -21,27 +46,29 @@ struct SettingsView: View {
                             Task {
                                 await NotificationService.scheduleDeadlineReminders(
                                     for: store.activeClaims,
-                                    enabled: enabled
+                                    enabled: enabled,
+                                    offsets: entitlements.reminderOffsets
                                 )
                             }
                         }
-                    Text("Local notifications only — three days before a watched claim’s deadline.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        entitlements.isPro
+                            ? "Pro: local notifications at 7, 3, and 1 day before a watched deadline."
+                            : "Free: one local notification 3 days before. Pro adds a 7/3/1-day ladder."
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
 
                 Section("Privacy") {
                     LabeledContent("Account") {
-                        Text("None")
-                            .foregroundStyle(.secondary)
+                        Text("None").foregroundStyle(.secondary)
                     }
                     LabeledContent("Tracking") {
-                        Text("Off")
-                            .foregroundStyle(.secondary)
+                        Text("Off").foregroundStyle(.secondary)
                     }
                     LabeledContent("Email scans") {
-                        Text("On-device")
-                            .foregroundStyle(.secondary)
+                        Text("On-device").foregroundStyle(.secondary)
                     }
                 }
 
@@ -75,11 +102,21 @@ struct SettingsView: View {
                 }
             }
             .sheet(item: $legalDoc) { doc in
-                switch doc {
-                case .privacy:
-                    LegalDocumentView(title: "Privacy Policy", resourceName: AppLegal.privacyResourceName)
-                case .terms:
-                    LegalDocumentView(title: "Terms of Use", resourceName: AppLegal.termsResourceName)
+                NavigationStack {
+                    switch doc {
+                    case .privacy:
+                        LegalDocumentView(
+                            title: "Privacy Policy",
+                            resourceName: AppLegal.privacyResourceName,
+                            showsDoneButton: true
+                        )
+                    case .terms:
+                        LegalDocumentView(
+                            title: "Terms of Use",
+                            resourceName: AppLegal.termsResourceName,
+                            showsDoneButton: true
+                        )
+                    }
                 }
             }
         }

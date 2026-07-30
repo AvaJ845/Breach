@@ -2,10 +2,14 @@ import SwiftUI
 
 struct BreachListView: View {
     @Bindable var store: BreachStore
+    @Bindable var entitlements: EntitlementStore
     @Binding var showSettings: Bool
+    var onShowPaywall: (String) -> Void
+
     @State private var query = ""
     @State private var category: Breach.Category?
     @State private var path = NavigationPath()
+    @State private var showCustom = false
 
     private var filtered: [Breach] {
         store.breaches.filter { breach in
@@ -32,13 +36,19 @@ struct BreachListView: View {
                 }
 
                 Section {
-                    ForEach(filtered) { breach in
-                        Button {
-                            path.append(breach.id)
-                        } label: {
-                            BreachRowView(breach: breach, status: store.status(for: breach.id))
+                    if filtered.isEmpty {
+                        ContentUnavailableView.search(text: query.isEmpty ? "filters" : query)
+                            .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(filtered) { breach in
+                            Button {
+                                path.append(breach.id)
+                            } label: {
+                                BreachRowView(breach: breach, status: store.status(for: breach.id))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityHint("Opens settlement details")
                         }
-                        .buttonStyle(.plain)
                     }
                 } header: {
                     Text(category == nil ? "Open & recent" : category!.label)
@@ -48,6 +58,18 @@ struct BreachListView: View {
             .navigationTitle("Settlements")
             .searchable(text: $query, prompt: "Company or settlement")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        if entitlements.unlocks(.customSettlements) {
+                            showCustom = true
+                        } else {
+                            onShowPaywall("Add custom settlements with Breach Kit Pro.")
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add custom settlement")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showSettings = true
@@ -59,7 +81,17 @@ struct BreachListView: View {
             }
             .navigationDestination(for: String.self) { id in
                 if let breach = store.breach(id: id) {
-                    BreachDetailView(store: store, breach: breach)
+                    BreachDetailView(
+                        store: store,
+                        entitlements: entitlements,
+                        breach: breach,
+                        onShowPaywall: onShowPaywall
+                    )
+                }
+            }
+            .sheet(isPresented: $showCustom) {
+                CustomSettlementSheet(store: store) { breach in
+                    path.append(breach.id)
                 }
             }
         }
@@ -81,11 +113,15 @@ struct BreachListView: View {
                     }
                 }
             }
+            .accessibilityElement(children: .contain)
         }
     }
 
     private func filterChip(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button {
+            Haptics.light()
+            action()
+        } label: {
             Text(title)
                 .font(.subheadline.weight(.semibold))
                 .padding(.horizontal, 12)
@@ -94,5 +130,7 @@ struct BreachListView: View {
                 .background(selected ? Theme.accent : Color(.tertiarySystemFill), in: Capsule())
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityLabel("\(title) category filter")
     }
 }

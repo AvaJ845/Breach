@@ -3,9 +3,19 @@ import StoreKit
 
 struct WalletView: View {
     @Bindable var store: BreachStore
+    @Bindable var entitlements: EntitlementStore
     @Binding var showSettings: Bool
+    var onBrowseSettlements: () -> Void
+    var onShowPaywall: (String) -> Void
+
     @Environment(\.requestReview) private var requestReview
     @State private var path = NavigationPath()
+    @State private var sharePayload: SharePayload?
+
+    private struct SharePayload: Identifiable {
+        let id = UUID()
+        let text: String
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -18,6 +28,21 @@ struct WalletView: View {
             }
             .navigationTitle("Wallet")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if !store.activeClaims.isEmpty || !store.finishedClaims.isEmpty {
+                        Button {
+                            if entitlements.unlocks(.walletShare) {
+                                sharePayload = SharePayload(text: store.walletShareText())
+                                Haptics.light()
+                            } else {
+                                onShowPaywall("Share your Wallet summary with Breach Kit Pro.")
+                            }
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel("Share Wallet")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showSettings = true
@@ -29,8 +54,16 @@ struct WalletView: View {
             }
             .navigationDestination(for: String.self) { id in
                 if let breach = store.breach(id: id) {
-                    BreachDetailView(store: store, breach: breach)
+                    BreachDetailView(
+                        store: store,
+                        entitlements: entitlements,
+                        breach: breach,
+                        onShowPaywall: onShowPaywall
+                    )
                 }
+            }
+            .sheet(item: $sharePayload) { payload in
+                ShareSheet(items: [payload.text])
             }
         }
     }
@@ -44,8 +77,22 @@ struct WalletView: View {
                     .listRowSeparator(.hidden)
             }
 
+            if !store.dueThisWeek.isEmpty {
+                Section("Due this week") {
+                    ForEach(store.dueThisWeek, id: \.breach.id) { pair in
+                        Button {
+                            path.append(pair.breach.id)
+                        } label: {
+                            ClaimRowView(breach: pair.breach, claim: pair.claim)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint("Opens settlement details")
+                    }
+                }
+            }
+
             if !store.activeClaims.isEmpty {
-                Section("In progress") {
+                Section {
                     ForEach(store.activeClaims, id: \.breach.id) { pair in
                         Button {
                             path.append(pair.breach.id)
@@ -61,6 +108,13 @@ struct WalletView: View {
                                 .tint(Theme.claimed)
                             }
                         }
+                        .accessibilityHint("Opens settlement details. Swipe to mark claimed.")
+                    }
+                } header: {
+                    Text("In progress")
+                } footer: {
+                    if !entitlements.isPro {
+                        Text("Free includes \(FreeTierLimits.maxWatches) watches · \(store.watchCount) used")
                     }
                 }
             }
@@ -87,23 +141,37 @@ struct WalletView: View {
         } description: {
             Text("Browse open settlements and tap Watch to track estimated recovery here.")
         } actions: {
-            // Tab switching is handled by the parent; this keeps the CTA honest.
-            Text("Open the Settlements tab to start.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            Button("Browse settlements") {
+                Haptics.light()
+                onBrowseSettlements()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.accent)
         }
     }
 
     private func markClaimed(_ id: String) {
         let happy = store.markClaimed(id)
+        Haptics.success()
         if happy, ReviewPrompt.registerSuccessAndShouldRequest() {
             requestReview()
         }
         Task {
             await NotificationService.scheduleDeadlineReminders(
                 for: store.activeClaims,
-                enabled: store.notifyDeadlines
+                enabled: store.notifyDeadlines,
+                offsets: entitlements.reminderOffsets
             )
         }
     }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

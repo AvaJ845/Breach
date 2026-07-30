@@ -3,7 +3,10 @@ import StoreKit
 
 struct EmailScanView: View {
     @Bindable var store: BreachStore
+    @Bindable var entitlements: EntitlementStore
     @Binding var showSettings: Bool
+    var onShowPaywall: (String) -> Void
+
     @Environment(\.requestReview) private var requestReview
     @State private var email = ""
     @State private var results: [Breach] = []
@@ -50,9 +53,9 @@ struct EmailScanView: View {
                     Section {
                         if results.isEmpty {
                             ContentUnavailableView(
-                                "No demo matches",
+                                "No catalog matches",
                                 systemImage: "checkmark.shield",
-                                description: Text("This sample catalog didn’t flag that address. Add settlements manually from the Settlements tab.")
+                                description: Text("This curated catalog didn’t flag that address. Add settlements manually from Settlements — or keep watching the feed.")
                             )
                             .listRowBackground(Color.clear)
                         } else {
@@ -65,8 +68,7 @@ struct EmailScanView: View {
                                 .buttonStyle(.plain)
                                 .swipeActions(edge: .trailing) {
                                     Button("Watch") {
-                                        store.watch(breach)
-                                        store.markNotified(breach.id)
+                                        watchFromScan(breach)
                                     }
                                     .tint(Theme.accent)
                                 }
@@ -75,7 +77,7 @@ struct EmailScanView: View {
                     } header: {
                         Text(results.isEmpty ? "Results" : "\(results.count) possible matches")
                     } footer: {
-                        Text("Scan runs on-device against Breach Kit’s curated catalog. Your email is never uploaded.")
+                        Text("Scan runs on-device against Breach Kit’s curated catalog — not a live breach database. Your email is never uploaded.")
                     }
                 }
 
@@ -113,7 +115,12 @@ struct EmailScanView: View {
             }
             .navigationDestination(for: String.self) { id in
                 if let breach = store.breach(id: id) {
-                    BreachDetailView(store: store, breach: breach)
+                    BreachDetailView(
+                        store: store,
+                        entitlements: entitlements,
+                        breach: breach,
+                        onShowPaywall: onShowPaywall
+                    )
                 }
             }
         }
@@ -153,11 +160,32 @@ struct EmailScanView: View {
             didScan = true
             store.addWatchedEmail(trimmed)
             isScanning = false
-
-            // Happy moment: first non-empty private scan.
-            if !results.isEmpty, ReviewPrompt.registerSuccessAndShouldRequest() {
-                requestReview()
+            if !results.isEmpty {
+                Haptics.success()
+                if ReviewPrompt.registerSuccessAndShouldRequest() {
+                    requestReview()
+                }
+            } else {
+                Haptics.light()
             }
+        }
+    }
+
+    private func watchFromScan(_ breach: Breach) {
+        if store.wouldCountAsNewWatch(for: breach.id),
+           !entitlements.canWatchMore(currentWatchCount: store.watchCount) {
+            onShowPaywall("You've used all \(FreeTierLimits.maxWatches) free watches. Unlock unlimited with Pro.")
+            return
+        }
+        store.watch(breach)
+        store.markNotified(breach.id)
+        Haptics.success()
+        Task {
+            await NotificationService.scheduleDeadlineReminders(
+                for: store.activeClaims,
+                enabled: store.notifyDeadlines,
+                offsets: entitlements.reminderOffsets
+            )
         }
     }
 }

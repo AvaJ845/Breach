@@ -1,0 +1,101 @@
+{
+  "identifier" : "BreachKitProducts",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "0",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "BreachKitPro",
+      "localizations" : [
+        {
+          "customAppName" : "Breach Kit",
+          "description" : "Unlimited watches, smarter deadline reminders, and custom settlements — private, on-device.",
+          "displayName" : "Breach Kit Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Breach Kit Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "3.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Monthly Breach Kit Pro with a 7-day free trial. Unlimited watches, 7/3/1-day reminders, custom settlements. Cancel anytime.",
+              "displayName" : "Breach Kit Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.avaresearch.breachkit.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "24.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Yearly Breach Kit Pro with a 7-day free trial. Best value vs monthly. Cancel anytime.",
+              "displayName" : "Breach Kit Pro Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.avaresearch.breachkit.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Yearly",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

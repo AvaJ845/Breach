@@ -15,34 +15,45 @@ enum NotificationService {
         }
     }
 
-    static func scheduleDeadlineReminders(for pairs: [(breach: Breach, claim: Claim)], enabled: Bool) async {
+    static func scheduleDeadlineReminders(
+        for pairs: [(breach: Breach, claim: Claim)],
+        enabled: Bool,
+        offsets: [Int] = FreeTierLimits.freeReminderDaysBefore
+    ) async {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: pairs.map { "deadline.\($0.breach.id)" })
+        // Clear prior Breach Kit deadline requests.
+        let pending = await center.pendingNotificationRequests()
+        let ours = pending.map(\.identifier).filter { $0.hasPrefix("deadline.") }
+        center.removePendingNotificationRequests(withIdentifiers: ours)
 
         guard enabled else { return }
         let allowed = await requestAuthorizationIfNeeded()
         guard allowed else { return }
 
         for pair in pairs where pair.claim.status.isActive && pair.breach.isOpen {
-            let daysLeft = Calendar.current.dateComponents([.day], from: .now, to: pair.breach.deadline).day ?? 0
-            guard daysLeft > 3 else { continue }
+            for daysBefore in offsets {
+                guard let fireDate = Calendar.current.date(
+                    byAdding: .day,
+                    value: -daysBefore,
+                    to: pair.breach.deadline
+                ) else { continue }
+                guard fireDate > .now else { continue }
 
-            guard let fireDate = Calendar.current.date(byAdding: .day, value: -3, to: pair.breach.deadline) else { continue }
-            guard fireDate > .now else { continue }
+                let content = UNMutableNotificationContent()
+                content.title = daysBefore == 1 ? "Claim due tomorrow" : "Claim deadline approaching"
+                content.body = "\(pair.breach.company) — \(Formatters.dueLabel(until: pair.breach.deadline)). Estimated \(Formatters.money(pair.breach.estimatedPayout))."
+                content.sound = .default
+                content.categoryIdentifier = "DEADLINE"
 
-            let content = UNMutableNotificationContent()
-            content.title = "Claim deadline approaching"
-            content.body = "\(pair.breach.company) — \(Formatters.dueLabel(until: pair.breach.deadline)). Estimated \(Formatters.money(pair.breach.estimatedPayout))."
-            content.sound = .default
-
-            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: fireDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-            let request = UNNotificationRequest(
-                identifier: "deadline.\(pair.breach.id)",
-                content: content,
-                trigger: trigger
-            )
-            try? await center.add(request)
+                let comps = Calendar.current.dateComponents([.year, .month, .day, .hour], from: fireDate)
+                let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+                let request = UNNotificationRequest(
+                    identifier: "deadline.\(pair.breach.id).\(daysBefore)",
+                    content: content,
+                    trigger: trigger
+                )
+                try? await center.add(request)
+            }
         }
     }
 }
