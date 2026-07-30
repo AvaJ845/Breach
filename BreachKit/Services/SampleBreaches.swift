@@ -1,7 +1,5 @@
 import Foundation
 
-/// Curated sample settlements for a truthful, offline-first demo.
-/// Amounts and deadlines are illustrative — not live legal advice.
 enum SampleBreaches {
     static let catalog: [Breach] = {
         let cal = Calendar.current
@@ -14,14 +12,21 @@ enum SampleBreaches {
                 id: "apple-app-store-2025",
                 company: "Apple",
                 title: "App Store billing settlement",
-                summary: "Eligible customers who purchased certain digital goods may file a simple claim. No proof of purchase required for many tiers.",
+                summary: "Eligible customers who purchased certain digital goods may file a simple claim. Many tiers need no proof of purchase — confirm on the official site.",
                 estimatedPayout: 35,
                 deadline: date(2026, 10, 15),
                 requiresProof: false,
                 category: .tech,
                 dataTypes: ["Purchase history", "Account email"],
                 claimURL: URL(string: "https://www.apple.com"),
-                year: 2025
+                year: 2025,
+                eligibilitySteps: [
+                    "Check whether your Apple ID purchases fall in the class period",
+                    "Open the official claim administrator site",
+                    "Choose the no-proof or documented tier honestly",
+                    "Submit before the deadline",
+                    "Save confirmation in Notes"
+                ]
             ),
             Breach(
                 id: "google-ads-2025",
@@ -182,7 +187,6 @@ enum SampleBreaches {
         ]
     }()
 
-    /// Deterministic demo matches for the on-device email scan (privacy-preserving hash buckets).
     static func demoMatches(for email: String) -> [Breach] {
         let normalized = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard normalized.contains("@"), normalized.contains(".") else { return [] }
@@ -193,7 +197,6 @@ enum SampleBreaches {
     }
 }
 
-/// Tiny deterministic RNG so scan results stay stable per email.
 struct SeededGenerator: RandomNumberGenerator {
     private var state: UInt64
 

@@ -25,6 +25,7 @@ final class BreachStoreTests: XCTestCase {
         XCTAssertEqual(store.activeClaims.count, 1)
         XCTAssertEqual(store.summary.watchingCount, 1)
         XCTAssertEqual(store.summary.estimatedPayout, breach.estimatedPayout)
+        XCTAssertEqual(store.summary.trackedEstimates, breach.estimatedPayout)
     }
 
     func testMarkClaimedMovesStatusAndSignalsHappyMoment() {

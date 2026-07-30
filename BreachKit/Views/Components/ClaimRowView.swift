@@ -14,6 +14,12 @@ struct ClaimRowView: View {
                 Text(Formatters.dueLabel(until: breach.deadline))
                     .font(.subheadline)
                     .foregroundStyle(dueColor)
+                let total = breach.eligibilitySteps.count
+                if total > 0 {
+                    Text("Checklist \(Set(claim.completedSteps).count)/\(total)")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer(minLength: 8)
@@ -21,11 +27,21 @@ struct ClaimRowView: View {
             VStack(alignment: .trailing, spacing: 6) {
                 Text(Formatters.money(breach.estimatedPayout))
                     .font(.title3.weight(.bold).monospacedDigit())
+                Text("est.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                 StatusBadge(status: claim.status)
             }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        let total = breach.eligibilitySteps.count
+        let done = Set(claim.completedSteps).count
+        return "\(breach.company), \(Formatters.money(breach.estimatedPayout)) estimate, \(Formatters.dueLabel(until: breach.deadline)), \(claim.status.label), checklist \(done) of \(total)"
     }
 
     private var dueColor: Color {
@@ -64,6 +80,9 @@ struct BreachRowView: View {
             VStack(alignment: .trailing, spacing: 6) {
                 Text(Formatters.money(breach.estimatedPayout))
                     .font(.title3.weight(.bold).monospacedDigit())
+                Text("est.")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
                 if let status {
                     StatusBadge(status: status)
                 } else {
@@ -74,5 +93,6 @@ struct BreachRowView: View {
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }

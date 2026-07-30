@@ -4,22 +4,26 @@
 
 ## Personal organizer — not legal advice
 
-Breach Kit helps you organize **publicly described** data-breach and class-action settlement opportunities. It is for personal tracking only.
+Breach Kit helps you organize **publicly described** data-breach and class-action settlement opportunities and finish claim checklists. It is for personal tracking only.
 
-Breach Kit is **not** a law firm, claims administrator, attorney referral service, or guarantee of payment. It does **not** file claims for you. Always verify eligibility, deadlines, and award amounts on the official claim site.
+Breach Kit is **not** a law firm, claims administrator, attorney referral service, or guarantee of payment. It does **not** file claims for you. Dollar amounts shown are **estimates**. Always verify eligibility, deadlines, and award amounts on the official claim site.
 
 ## Catalog data
 
-Settlement listings in the app may include curated or illustrative information (company, estimated award ranges, deadlines). Amounts and dates can change. Official administrators are the source of truth.
+Settlement listings may be curated or user-added. Curated listings organize publicly described opportunities; they may be illustrative. Official administrators are the source of truth.
+
+## Always free
+
+Watching settlements, claim checklists, on-device email scan matching against the curated catalog, a 3-day deadline reminder, private notes, and the Home Screen due-soon widget are free.
 
 ## Breach Kit Pro (subscription)
 
-Optional **Breach Kit Pro** unlocks tracking convenience:
+Optional **Breach Kit Pro** unlocks:
 
-- Unlimited settlement watches (Free includes a small watch limit)
 - A 7 / 3 / 1-day local deadline reminder ladder
 - Custom settlements you add yourself
 - Wallet summary sharing
+- Weekly due-soon digest
 
 ### Subscription (auto-renewable)
 

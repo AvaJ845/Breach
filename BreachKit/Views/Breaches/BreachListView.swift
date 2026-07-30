@@ -33,6 +33,11 @@ struct BreachListView: View {
                         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 4, trailing: 16))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+
+                    CatalogHonestyBanner()
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                 }
 
                 Section {
@@ -99,7 +104,7 @@ struct BreachListView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Track real settlement windows — deadlines, estimated awards, and claim status in one place.")
+            Text("Organize open claim windows — deadlines, checklists, and status. Free to watch; Pro adds smarter reminders.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 

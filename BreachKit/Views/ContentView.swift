@@ -1,7 +1,8 @@
 import SwiftUI
-import StoreKit
 
 struct ContentView: View {
+    let notificationDelegate: NotificationDelegate
+
     @State private var store = BreachStore()
     @State private var entitlements = EntitlementStore()
     @State private var selectedTab: Tab = .wallet
@@ -9,6 +10,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showPaywall = false
     @State private var paywallReason: String?
+    @State private var deepLinkBreachID: String?
     @AppStorage("breachkit.hasOnboarded") private var hasOnboarded = false
 
     enum Tab: Hashable {
@@ -69,6 +71,29 @@ struct ContentView: View {
         .sheet(isPresented: $showPaywall) {
             PaywallView(entitlements: entitlements, reason: paywallReason)
         }
+        .sheet(item: Binding(
+            get: { deepLinkBreachID.map { DeepLink($0) } },
+            set: { deepLinkBreachID = $0?.id }
+        )) { link in
+            if let breach = store.breach(id: link.id) {
+                NavigationStack {
+                    BreachDetailView(
+                        store: store,
+                        entitlements: entitlements,
+                        breach: breach,
+                        onShowPaywall: { reason in
+                            paywallReason = reason
+                            showPaywall = true
+                        }
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Close") { deepLinkBreachID = nil }
+                        }
+                    }
+                }
+            }
+        }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView {
                 hasOnboarded = true
@@ -81,12 +106,20 @@ struct ContentView: View {
             }
         }
         .onAppear {
+            notificationDelegate.store = store
             if !hasOnboarded {
                 showOnboarding = true
             } else {
                 store.seedDemoWalletIfNeeded()
             }
             store.refreshExpiredStatuses()
+            store.publishGlance()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .breachKitOpenBreach)) { note in
+            if let id = note.userInfo?["breachID"] as? String {
+                selectedTab = .wallet
+                deepLinkBreachID = id
+            }
         }
         .task {
             await entitlements.loadProducts()
@@ -103,9 +136,18 @@ struct ContentView: View {
             enabled: store.notifyDeadlines,
             offsets: entitlements.reminderOffsets
         )
+        await NotificationService.scheduleWeeklyDigest(
+            dueSoon: store.dueSoonFourteenDays,
+            enabled: entitlements.unlocks(.weeklyDigest) && store.weeklyDigestEnabled
+        )
     }
 }
 
+private struct DeepLink: Identifiable {
+    let id: String
+    init(_ id: String) { self.id = id }
+}
+
 #Preview {
-    ContentView()
+    ContentView(notificationDelegate: NotificationDelegate())
 }

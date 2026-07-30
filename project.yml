@@ -10,8 +10,8 @@ configFiles:
   Release: Config/Base.xcconfig
 settings:
   base:
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "2"
+    MARKETING_VERSION: "2.0.0"
+    CURRENT_PROJECT_VERSION: "3"
     SWIFT_VERSION: "5.9"
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: YES
@@ -42,6 +42,9 @@ targets:
       - path: BreachKit/Resources/Legal
         buildPhase: resources
         type: folder
+    dependencies:
+      - target: BreachKitWidget
+        embed: true
     info:
       path: BreachKit/Info.plist
       properties:
@@ -57,11 +60,35 @@ targets:
       base:
         PRODUCT_NAME: BreachKit
         PRODUCT_BUNDLE_IDENTIFIER: com.avaresearch.breachkit
+        CODE_SIGN_ENTITLEMENTS: BreachKit/BreachKit.entitlements
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         TARGETED_DEVICE_FAMILY: "1,2"
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.utilities"
+    postBuildScripts:
+      - name: Strip extended attributes (codesign detritus)
+        script: /usr/bin/xattr -rc "${CODESIGNING_FOLDER_PATH}"
+        basedOnDependencyAnalysis: false
+  BreachKitWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BreachKitWidget
+        excludes:
+          - "**/*.entitlements"
+          - "Info.plist"
+      - path: BreachKit/Support/AppGroup.swift
+      - path: BreachKit/Support/Formatters.swift
+      - path: BreachKit/Models/Breach.swift
+    settings:
+      base:
+        PRODUCT_NAME: BreachKitWidget
+        PRODUCT_BUNDLE_IDENTIFIER: com.avaresearch.breachkit.widget
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: BreachKitWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BreachKitWidget/BreachKitWidget.entitlements
+        SKIP_INSTALL: YES
     postBuildScripts:
       - name: Strip extended attributes (codesign detritus)
         script: /usr/bin/xattr -rc "${CODESIGNING_FOLDER_PATH}"
@@ -85,6 +112,7 @@ schemes:
     build:
       targets:
         BreachKit: all
+        BreachKitWidget: all
         BreachKitTests: [test]
     test:
       config: Debug

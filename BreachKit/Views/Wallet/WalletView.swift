@@ -44,9 +44,7 @@ struct WalletView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showSettings = true
-                    } label: {
+                    Button { showSettings = true } label: {
                         Image(systemName: "gearshape")
                     }
                     .accessibilityLabel("Settings")
@@ -75,46 +73,39 @@ struct WalletView: View {
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+
+                CatalogHonestyBanner()
+                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
 
             if !store.dueThisWeek.isEmpty {
                 Section("Due this week") {
                     ForEach(store.dueThisWeek, id: \.breach.id) { pair in
-                        Button {
-                            path.append(pair.breach.id)
-                        } label: {
+                        Button { path.append(pair.breach.id) } label: {
                             ClaimRowView(breach: pair.breach, claim: pair.claim)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityHint("Opens settlement details")
+                        .accessibilityHint("Opens settlement details and checklist")
                     }
                 }
             }
 
             if !store.activeClaims.isEmpty {
-                Section {
+                Section("In progress") {
                     ForEach(store.activeClaims, id: \.breach.id) { pair in
-                        Button {
-                            path.append(pair.breach.id)
-                        } label: {
+                        Button { path.append(pair.breach.id) } label: {
                             ClaimRowView(breach: pair.breach, claim: pair.claim)
                         }
                         .buttonStyle(.plain)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             if pair.claim.status != .claimed && pair.claim.status != .paid {
-                                Button("Claimed") {
-                                    markClaimed(pair.breach.id)
-                                }
-                                .tint(Theme.claimed)
+                                Button("Claimed") { markClaimed(pair.breach.id) }
+                                    .tint(Theme.claimed)
                             }
                         }
-                        .accessibilityHint("Opens settlement details. Swipe to mark claimed.")
-                    }
-                } header: {
-                    Text("In progress")
-                } footer: {
-                    if !entitlements.isPro {
-                        Text("Free includes \(FreeTierLimits.maxWatches) watches · \(store.watchCount) used")
+                        .accessibilityHint("Opens checklist. Swipe to mark claimed.")
                     }
                 }
             }
@@ -122,9 +113,7 @@ struct WalletView: View {
             if !store.finishedClaims.isEmpty {
                 Section("Finished") {
                     ForEach(store.finishedClaims, id: \.breach.id) { pair in
-                        Button {
-                            path.append(pair.breach.id)
-                        } label: {
+                        Button { path.append(pair.breach.id) } label: {
                             ClaimRowView(breach: pair.breach, claim: pair.claim)
                         }
                         .buttonStyle(.plain)
@@ -139,7 +128,7 @@ struct WalletView: View {
         ContentUnavailableView {
             Label("Your wallet is empty", systemImage: "tray")
         } description: {
-            Text("Browse open settlements and tap Watch to track estimated recovery here.")
+            Text("Browse curated settlements, start a checklist, and track deadlines — free, private, on-device.")
         } actions: {
             Button("Browse settlements") {
                 Haptics.light()

@@ -21,7 +21,7 @@ struct PaywallView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Breach Kit Pro")
                             .font(.title2.weight(.bold))
-                        Text("Optional upgrade for power trackers. Same private, on-device design — more watches, smarter reminders, custom settlements.")
+                        Text("Optional upgrade for power helpers. Core watching and checklists stay free — Pro deepens reminders and tools.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         if let reason, !reason.isEmpty {
@@ -36,10 +36,11 @@ struct PaywallView: View {
                 }
 
                 Section("Always free") {
-                    Label("Browse the settlement catalog", systemImage: "list.bullet.rectangle")
-                    Label("Watch up to \(FreeTierLimits.maxWatches) settlements", systemImage: "eye")
+                    Label("Browse curated settlements", systemImage: "list.bullet.rectangle")
+                    Label("Unlimited watches & claim checklists", systemImage: "checklist")
                     Label("On-device email scan", systemImage: "lock.shield")
                     Label("3-day deadline reminder", systemImage: "bell")
+                    Label("Home Screen due-soon widget", systemImage: "rectangle.on.rectangle")
                     Label("Private notes — never leave the phone", systemImage: "note.text")
                 }
 

@@ -1,50 +1,50 @@
 import Foundation
 
-/// Paid capabilities. Free tier stays useful; Pro deepens tracking without paywalling privacy.
+/// Paid capabilities. Free stays fully useful for organizing claims;
+/// Pro deepens reminders and power tools — never paywalls privacy or basic help.
 enum ProFeature: String, CaseIterable, Identifiable, Sendable {
-    case unlimitedWatches
     case reminderLadder
     case customSettlements
     case walletShare
+    case weeklyDigest
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
-        case .unlimitedWatches: return "Unlimited watches"
         case .reminderLadder: return "Smarter deadline ladder"
         case .customSettlements: return "Custom settlements"
-        case .walletShare: return "Share your Wallet card"
+        case .walletShare: return "Share your Wallet summary"
+        case .weeklyDigest: return "Weekly due-soon digest"
         }
     }
 
     var detail: String {
         switch self {
-        case .unlimitedWatches:
-            return "Watch every open window that matters — Free includes \(FreeTierLimits.maxWatches)."
         case .reminderLadder:
-            return "Local reminders at 7, 3, and 1 day before a deadline — not just one ping."
+            return "Local reminders at 7, 3, and 1 day before a deadline — Free includes a 3-day ping."
         case .customSettlements:
-            return "Add settlements that aren’t in the catalog yet — company, amount, deadline."
+            return "Add settlements that aren’t in the curated catalog yet."
         case .walletShare:
-            return "Export a clean Wallet summary image to Messages or Notes."
+            return "Export a clean Wallet summary to Messages or Notes."
+        case .weeklyDigest:
+            return "A Sunday local digest of everything due in the next 14 days."
         }
     }
 
     var systemImage: String {
         switch self {
-        case .unlimitedWatches: return "infinity"
         case .reminderLadder: return "bell.badge"
         case .customSettlements: return "plus.rectangle.on.folder"
         case .walletShare: return "square.and.arrow.up"
+        case .weeklyDigest: return "calendar.badge.clock"
         }
     }
 }
 
 enum FreeTierLimits {
-    /// Generous enough to feel the product; scarce enough that power users upgrade.
-    static let maxWatches = 3
-    /// Free: single reminder 3 days out. Pro: 7 / 3 / 1.
+    /// North Star: watching settlements is core help — not artificially scarce.
+    static let maxWatches = Int.max
     static let freeReminderDaysBefore: [Int] = [3]
     static let proReminderDaysBefore: [Int] = [7, 3, 1]
 }

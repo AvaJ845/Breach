@@ -68,7 +68,16 @@ struct EmailScanView: View {
                                 .buttonStyle(.plain)
                                 .swipeActions(edge: .trailing) {
                                     Button("Watch") {
-                                        watchFromScan(breach)
+                                        store.watch(breach)
+                                        store.markNotified(breach.id)
+                                        Haptics.success()
+                                        Task {
+                                            await NotificationService.scheduleDeadlineReminders(
+                                                for: store.activeClaims,
+                                                enabled: store.notifyDeadlines,
+                                                offsets: entitlements.reminderOffsets
+                                            )
+                                        }
                                     }
                                     .tint(Theme.accent)
                                 }
@@ -77,7 +86,7 @@ struct EmailScanView: View {
                     } header: {
                         Text(results.isEmpty ? "Results" : "\(results.count) possible matches")
                     } footer: {
-                        Text("Scan runs on-device against Breach Kit’s curated catalog — not a live breach database. Your email is never uploaded.")
+                        Text("Scan runs on-device against Breach Kit’s curated catalog — illustrative matches for organization, not a live breach database. Your email is never uploaded.")
                     }
                 }
 
@@ -172,11 +181,6 @@ struct EmailScanView: View {
     }
 
     private func watchFromScan(_ breach: Breach) {
-        if store.wouldCountAsNewWatch(for: breach.id),
-           !entitlements.canWatchMore(currentWatchCount: store.watchCount) {
-            onShowPaywall("You've used all \(FreeTierLimits.maxWatches) free watches. Unlock unlimited with Pro.")
-            return
-        }
         store.watch(breach)
         store.markNotified(breach.id)
         Haptics.success()

@@ -35,7 +35,7 @@ struct OnboardingView: View {
             Spacer(minLength: 12)
             WalletSummaryCard(
                 summary: WalletSummary(
-                    estimatedPayout: 94,
+                    trackedEstimates: 94,
                     claimedCount: 3,
                     notifiedCount: 2,
                     watchingCount: 4,
@@ -49,7 +49,7 @@ struct OnboardingView: View {
                 Text("Claim cash, calmly")
                     .font(.largeTitle.weight(.bold))
                     .multilineTextAlignment(.center)
-                Text("See estimated recovery, deadlines, and claim status at a glance — the same clarity as your iOS Wallet, for settlements.")
+                Text("See tracked estimates, deadlines, and claim checklists at a glance — calm clarity to help you finish, not hype.")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

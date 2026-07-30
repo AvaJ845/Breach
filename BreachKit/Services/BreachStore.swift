@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import WidgetKit
 
 /// Local-first claim tracker. Persists to UserDefaults — no account, no cloud.
 @Observable
@@ -9,6 +10,7 @@ final class BreachStore {
     private static let customBreachesKey = "breachkit.customBreaches.v1"
     private static let watchedEmailsKey = "breachkit.watchedEmails.v1"
     private static let notifyDeadlinesKey = "breachkit.notifyDeadlines"
+    private static let weeklyDigestKey = "breachkit.weeklyDigest"
 
     private let defaults: UserDefaults
     private let catalogBreaches: [Breach]
@@ -17,11 +19,13 @@ final class BreachStore {
     private(set) var claims: [String: Claim] = [:]
     var watchedEmails: [String] = []
     var notifyDeadlines: Bool = true
+    var weeklyDigestEnabled: Bool = false
 
     init(defaults: UserDefaults = .standard, breaches: [Breach] = SampleBreaches.catalog) {
         self.defaults = defaults
         self.catalogBreaches = breaches
         load()
+        publishGlance()
     }
 
     var breaches: [Breach] {
@@ -32,7 +36,6 @@ final class BreachStore {
         breaches.filter(\.isOpen)
     }
 
-    /// Active watches that count toward the Free tier cap.
     var watchCount: Int {
         claims.values.filter { $0.status.isActive }.count
     }
@@ -65,7 +68,7 @@ final class BreachStore {
         }
 
         return WalletSummary(
-            estimatedPayout: estimated,
+            trackedEstimates: estimated,
             claimedCount: claimed,
             notifiedCount: notified,
             watchingCount: watching,
@@ -100,6 +103,11 @@ final class BreachStore {
         return activeClaims.filter { $0.breach.deadline <= week && $0.breach.isOpen }
     }
 
+    var dueSoonFourteenDays: [(breach: Breach, claim: Claim)] {
+        let window = Calendar.current.date(byAdding: .day, value: 14, to: .now) ?? .now
+        return activeClaims.filter { $0.breach.deadline <= window && $0.breach.isOpen }
+    }
+
     private var pairedClaims: [(breach: Breach, claim: Claim)] {
         claims.values.compactMap { claim in
             guard let breach = breach(id: claim.breachID) else { return nil }
@@ -107,7 +115,6 @@ final class BreachStore {
         }
     }
 
-    /// Returns nil if already watching; returns the new claim otherwise.
     @discardableResult
     func watch(_ breach: Breach) -> Claim {
         ensureBreachKnown(breach)
@@ -117,12 +124,14 @@ final class BreachStore {
                 existing.notedAt = .now
                 claims[breach.id] = existing
                 persist()
+                publishGlance()
             }
             return claims[breach.id]!
         }
         let claim = Claim(breachID: breach.id, status: .watching)
         claims[breach.id] = claim
         persist()
+        publishGlance()
         return claim
     }
 
@@ -151,7 +160,9 @@ final class BreachStore {
             category: category,
             dataTypes: ["User-provided"],
             claimURL: nil,
-            year: Calendar.current.component(.year, from: .now)
+            year: Calendar.current.component(.year, from: .now),
+            source: .custom,
+            payoutCaveat: "Your estimate — not verified by Breach Kit"
         )
         customBreaches.append(breach)
         persistCustom()
@@ -195,11 +206,22 @@ final class BreachStore {
     func removeClaim(_ breachID: String) {
         claims.removeValue(forKey: breachID)
         persist()
+        publishGlance()
     }
 
     func setNotes(_ breachID: String, notes: String) {
         update(breachID) { claim in
             claim.notes = notes
+        }
+    }
+
+    func toggleChecklistStep(_ breachID: String, step: Int) {
+        update(breachID) { claim in
+            if let idx = claim.completedSteps.firstIndex(of: step) {
+                claim.completedSteps.remove(at: idx)
+            } else {
+                claim.completedSteps.append(step)
+            }
         }
     }
 
@@ -233,20 +255,42 @@ final class BreachStore {
     func walletShareText() -> String {
         let s = summary
         var lines = [
-            "Breach Kit Wallet",
-            "Estimated recovery: \(Formatters.money(s.estimatedPayout))",
+            "Breach Kit — Wallet summary",
+            "Tracked estimates: \(Formatters.money(s.trackedEstimates)) (not guaranteed)",
             "Claimed: \(s.claimedCount) · Notified: \(s.notifiedCount) · Watching: \(s.watchingCount)"
         ]
         if !activeClaims.isEmpty {
             lines.append("")
             lines.append("In progress:")
             for pair in activeClaims.prefix(8) {
-                lines.append("• \(pair.breach.company) — \(Formatters.money(pair.breach.estimatedPayout)) · \(Formatters.dueLabel(until: pair.breach.deadline))")
+                let progress = Int(pair.claim.checklistProgress(total: pair.breach.eligibilitySteps.count) * 100)
+                lines.append("• \(pair.breach.company) — \(Formatters.money(pair.breach.estimatedPayout)) · \(Formatters.dueLabel(until: pair.breach.deadline)) · checklist \(progress)%")
             }
         }
         lines.append("")
         lines.append("Private organizer — not legal advice. Verify on the official claim site.")
         return lines.joined(separator: "\n")
+    }
+
+    func publishGlance() {
+        let next = activeClaims.first.map {
+            DeadlineSnapshot(
+                company: $0.breach.company,
+                amount: $0.breach.estimatedPayout,
+                deadline: $0.breach.deadline,
+                statusLabel: $0.claim.status.label,
+                breachID: $0.breach.id
+            )
+        }
+        let glance = WalletGlanceSnapshot(
+            trackedEstimates: summary.trackedEstimates,
+            watchingCount: summary.watchingCount,
+            dueSoonCount: dueThisWeek.count,
+            next: next,
+            updatedAt: .now
+        )
+        SharedStorage.saveGlance(glance)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Persistence
@@ -263,6 +307,7 @@ final class BreachStore {
         mutate(&claim)
         claims[breachID] = claim
         persist()
+        publishGlance()
     }
 
     private func load() {
@@ -278,6 +323,9 @@ final class BreachStore {
         if defaults.object(forKey: Self.notifyDeadlinesKey) != nil {
             notifyDeadlines = defaults.bool(forKey: Self.notifyDeadlinesKey)
         }
+        if defaults.object(forKey: Self.weeklyDigestKey) != nil {
+            weeklyDigestEnabled = defaults.bool(forKey: Self.weeklyDigestKey)
+        }
         refreshExpiredStatuses()
     }
 
@@ -286,6 +334,7 @@ final class BreachStore {
             defaults.set(data, forKey: Self.claimsKey)
         }
         defaults.set(notifyDeadlines, forKey: Self.notifyDeadlinesKey)
+        defaults.set(weeklyDigestEnabled, forKey: Self.weeklyDigestKey)
     }
 
     private func persistCustom() {
@@ -300,9 +349,9 @@ final class BreachStore {
 
     func persistSettings() {
         defaults.set(notifyDeadlines, forKey: Self.notifyDeadlinesKey)
+        defaults.set(weeklyDigestEnabled, forKey: Self.weeklyDigestKey)
     }
 
-    /// Seeds a small authentic wallet after onboarding (leaves one Free slot free).
     func seedDemoWalletIfNeeded() {
         let key = "breachkit.didSeedDemo"
         guard !defaults.bool(forKey: key) else { return }
@@ -318,5 +367,6 @@ final class BreachStore {
             }
         }
         defaults.set(true, forKey: key)
+        publishGlance()
     }
 }

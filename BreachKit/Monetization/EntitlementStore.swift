@@ -64,11 +64,12 @@ final class EntitlementStore {
     }
 
     func canWatchMore(currentWatchCount: Int) -> Bool {
-        isPro || currentWatchCount < FreeTierLimits.maxWatches
+        // North Star: organizing claims is free core help.
+        true
     }
 
     var reminderOffsets: [Int] {
-        isPro ? FreeTierLimits.proReminderDaysBefore : FreeTierLimits.freeReminderDaysBefore
+        unlocks(.reminderLadder) ? FreeTierLimits.proReminderDaysBefore : FreeTierLimits.freeReminderDaysBefore
     }
 
     func loadProducts() async {

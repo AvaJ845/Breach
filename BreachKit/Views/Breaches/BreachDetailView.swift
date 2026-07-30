@@ -9,6 +9,7 @@ struct BreachDetailView: View {
 
     @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var notes: String = ""
     @State private var celebrateClaimed = false
 
@@ -17,7 +18,15 @@ struct BreachDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                CatalogHonestyBanner()
                 hero
+                ClaimChecklistCard(breach: breach, claim: claim) { step in
+                    if claim == nil {
+                        _ = tryWatch()
+                    }
+                    store.toggleChecklistStep(breach.id, step: step)
+                    Haptics.light()
+                }
                 facts
                 dataTypes
                 notesCard
@@ -29,9 +38,7 @@ struct BreachDetailView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle(breach.company)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            notes = claim?.notes ?? ""
-        }
+        .onAppear { notes = claim?.notes ?? "" }
         .sensoryFeedback(.success, trigger: celebrateClaimed)
     }
 
@@ -44,7 +51,7 @@ struct BreachDetailView: View {
                         .font(.title3.weight(.semibold))
                     HStack(spacing: 8) {
                         ProofBadge(requiresProof: breach.requiresProof)
-                        Label(breach.category.label, systemImage: breach.category.symbol)
+                        Label(breach.source.label, systemImage: breach.source == .custom ? "person.crop.circle.badge.plus" : "checkmark.seal")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -57,12 +64,15 @@ struct BreachDetailView: View {
 
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Estimated award")
+                    Text("Tracked estimate")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text(Formatters.money(breach.estimatedPayout))
                         .font(.title.weight(.bold).monospacedDigit())
                         .minimumScaleFactor(0.7)
+                    Text(breach.payoutCaveat)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
@@ -91,11 +101,13 @@ struct BreachDetailView: View {
             Text("At a glance")
                 .font(.headline)
             LabeledContent("Settlement year", value: "\(breach.year)")
-            LabeledContent("Proof of purchase", value: breach.requiresProof ? "May increase award" : "Not required for base tier")
+            LabeledContent("Category", value: breach.category.label)
+            LabeledContent("Proof of purchase", value: breach.requiresProof ? "May increase award" : "Often not required for base tier")
             LabeledContent("Status window", value: breach.isOpen ? "Open for claims" : "Closed")
-            if breach.id.hasPrefix("custom-") {
-                LabeledContent("Source", value: "Added by you")
-            }
+            LabeledContent("Listing source", value: breach.source.label)
+            Text(breach.source.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -133,9 +145,7 @@ struct BreachDetailView: View {
                 .background(Color(.tertiarySystemFill), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .onChange(of: notes) { _, value in
                     guard claim != nil || !value.isEmpty else { return }
-                    if claim == nil {
-                        guard tryWatch() else { return }
-                    }
+                    if claim == nil { guard tryWatch() else { return } }
                     store.setNotes(breach.id, notes: value)
                 }
             Text("Notes stay on this device.")
@@ -157,14 +167,14 @@ struct BreachDetailView: View {
                         Task { await reschedule() }
                     }
                 } label: {
-                    labelButton("Watch & remind me", systemImage: "bell.badge")
+                    labelButton("Watch & start checklist", systemImage: "checklist")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Theme.accent)
             } else if claim?.status == .watching || claim?.status == .notified {
                 Button {
                     let happy = store.markClaimed(breach.id)
-                    celebrateClaimed.toggle()
+                    if !reduceMotion { celebrateClaimed.toggle() }
                     Haptics.success()
                     if happy, ReviewPrompt.registerSuccessAndShouldRequest() {
                         requestReview()
@@ -199,7 +209,7 @@ struct BreachDetailView: View {
                     if claim == nil { _ = tryWatch() }
                     openURL(url)
                 } label: {
-                    labelButton("Open claim site", systemImage: "safari")
+                    labelButton("Open official claim site", systemImage: "safari")
                 }
                 .buttonStyle(.bordered)
             }
@@ -220,7 +230,7 @@ struct BreachDetailView: View {
     }
 
     private var disclaimer: some View {
-        Text("Breach Kit helps you organize public settlement information. It is not a law firm, claims administrator, or guarantee of payment. Always verify eligibility on the official claim site.")
+        Text("Breach Kit helps you organize and finish public settlement claims. It is not a law firm, claims administrator, or guarantee of payment. Official sites always win.")
             .font(.footnote)
             .foregroundStyle(.secondary)
             .padding(.top, 4)
@@ -234,11 +244,6 @@ struct BreachDetailView: View {
     @discardableResult
     private func tryWatch() -> Bool {
         if store.claim(for: breach.id) != nil { return true }
-        if store.wouldCountAsNewWatch(for: breach.id),
-           !entitlements.canWatchMore(currentWatchCount: store.watchCount) {
-            onShowPaywall("You've used all \(FreeTierLimits.maxWatches) free watches. Unlock unlimited with Pro.")
-            return false
-        }
         store.watch(breach)
         return true
     }
@@ -249,10 +254,13 @@ struct BreachDetailView: View {
             enabled: store.notifyDeadlines,
             offsets: entitlements.reminderOffsets
         )
+        await NotificationService.scheduleWeeklyDigest(
+            dueSoon: store.dueSoonFourteenDays,
+            enabled: entitlements.unlocks(.weeklyDigest) && store.weeklyDigestEnabled
+        )
     }
 }
 
-/// Simple wrapping layout for data-type chips.
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
