@@ -39,6 +39,30 @@ struct ProofBadge: View {
     }
 }
 
+struct TrustBadge: View {
+    let trust: Breach.Trust
+
+    var body: some View {
+        Label(trust.label, systemImage: trust.symbol)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .foregroundStyle(foreground)
+            .background(foreground.opacity(0.12), in: Capsule())
+            .accessibilityLabel("Trust: \(trust.label)")
+            .accessibilityHint(trust.detail)
+    }
+
+    private var foreground: Color {
+        switch trust {
+        case .administratorLinked: return Theme.claimed
+        case .curatedPublic: return Theme.accent
+        case .samplePreview: return Theme.dueSoon
+        case .userProvided: return .secondary
+        }
+    }
+}
+
 struct CompanyMark: View {
     let company: String
     var size: CGFloat = 44

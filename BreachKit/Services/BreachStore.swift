@@ -13,7 +13,11 @@ final class BreachStore {
     private static let weeklyDigestKey = "breachkit.weeklyDigest"
 
     private let defaults: UserDefaults
-    private let catalogBreaches: [Breach]
+    private(set) var catalogBreaches: [Breach]
+    private(set) var catalogStatusMessage: String = "Bundled catalog"
+    private(set) var catalogSyncedAt: Date?
+    private(set) var catalogMethodology: String?
+    private(set) var isRefreshingCatalog = false
 
     private(set) var customBreaches: [Breach] = []
     private(set) var claims: [String: Claim] = [:]
@@ -21,11 +25,37 @@ final class BreachStore {
     var notifyDeadlines: Bool = true
     var weeklyDigestEnabled: Bool = false
 
-    init(defaults: UserDefaults = .standard, breaches: [Breach] = SampleBreaches.catalog) {
+    init(defaults: UserDefaults = .standard, breaches: [Breach] = CatalogService.offlineCatalog()) {
         self.defaults = defaults
         self.catalogBreaches = breaches
+        if let ts = AppGroup.defaults.object(forKey: "breachkit.catalog.syncedAt") as? TimeInterval {
+            catalogSyncedAt = Date(timeIntervalSince1970: ts)
+        }
         load()
         publishGlance()
+    }
+
+    func applyCatalog(_ outcome: CatalogService.Outcome) {
+        switch outcome {
+        case .remote(let breaches, let feed):
+            catalogBreaches = breaches
+            catalogStatusMessage = "Live feed · \(breaches.count) listings"
+            catalogSyncedAt = feed.generatedAt
+            catalogMethodology = feed.methodology
+        case .bundled(let breaches, let reason):
+            catalogBreaches = breaches
+            catalogStatusMessage = reason
+            catalogMethodology = nil
+        }
+        publishGlance()
+        DeadlineLiveActivity.sync(with: activeClaims)
+    }
+
+    func refreshCatalog() async {
+        isRefreshingCatalog = true
+        defer { isRefreshingCatalog = false }
+        let outcome = await CatalogService.refresh()
+        applyCatalog(outcome)
     }
 
     var breaches: [Breach] {
@@ -155,6 +185,8 @@ final class BreachStore {
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             summary: "Custom settlement you added. Verify details on the official claim site.",
             estimatedPayout: estimatedPayout,
+            awardMin: nil,
+            awardMax: nil,
             deadline: deadline,
             requiresProof: requiresProof,
             category: category,
@@ -162,6 +194,7 @@ final class BreachStore {
             claimURL: nil,
             year: Calendar.current.component(.year, from: .now),
             source: .custom,
+            trust: .userProvided,
             payoutCaveat: "Your estimate — not verified by Breach Kit"
         )
         customBreaches.append(breach)
@@ -254,17 +287,19 @@ final class BreachStore {
 
     func walletShareText() -> String {
         let s = summary
+        let inProgress = s.watchingCount + s.notifiedCount + s.claimedCount
         var lines = [
             "Breach Kit — Wallet summary",
-            "Tracked estimates: \(Formatters.money(s.trackedEstimates)) (not guaranteed)",
-            "Claimed: \(s.claimedCount) · Notified: \(s.notifiedCount) · Watching: \(s.watchingCount)"
+            "Claims in progress: \(inProgress)",
+            "Watching: \(s.watchingCount) · Notified: \(s.notifiedCount) · Claimed: \(s.claimedCount)",
+            "Tracked estimate: ~\(Formatters.money(s.trackedEstimates)) (not guaranteed)"
         ]
         if !activeClaims.isEmpty {
             lines.append("")
             lines.append("In progress:")
             for pair in activeClaims.prefix(8) {
                 let progress = Int(pair.claim.checklistProgress(total: pair.breach.eligibilitySteps.count) * 100)
-                lines.append("• \(pair.breach.company) — \(Formatters.money(pair.breach.estimatedPayout)) · \(Formatters.dueLabel(until: pair.breach.deadline)) · checklist \(progress)%")
+                lines.append("• \(pair.breach.company) — \(pair.breach.displayEstimate) · \(Formatters.dueLabel(until: pair.breach.deadline)) · checklist \(progress)%")
             }
         }
         lines.append("")
@@ -287,10 +322,13 @@ final class BreachStore {
             watchingCount: summary.watchingCount,
             dueSoonCount: dueThisWeek.count,
             next: next,
-            updatedAt: .now
+            updatedAt: .now,
+            catalogSyncedAt: catalogSyncedAt,
+            catalogTrustSummary: catalogStatusMessage
         )
         SharedStorage.saveGlance(glance)
         WidgetCenter.shared.reloadAllTimelines()
+        DeadlineLiveActivity.sync(with: activeClaims)
     }
 
     // MARK: - Persistence

@@ -123,6 +123,7 @@ struct ContentView: View {
         }
         .task {
             await entitlements.loadProducts()
+            await store.refreshCatalog()
             await rescheduleReminders()
         }
         .onChange(of: entitlements.isPro) { _, _ in

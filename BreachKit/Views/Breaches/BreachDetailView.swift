@@ -18,7 +18,11 @@ struct BreachDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                CatalogHonestyBanner()
+                CatalogHonestyBanner(
+                    statusMessage: store.catalogStatusMessage,
+                    syncedAt: store.catalogSyncedAt,
+                    methodology: store.catalogMethodology
+                )
                 hero
                 ClaimChecklistCard(breach: breach, claim: claim) { step in
                     if claim == nil {
@@ -50,10 +54,8 @@ struct BreachDetailView: View {
                     Text(breach.title)
                         .font(.title3.weight(.semibold))
                     HStack(spacing: 8) {
+                        TrustBadge(trust: breach.trust)
                         ProofBadge(requiresProof: breach.requiresProof)
-                        Label(breach.source.label, systemImage: breach.source == .custom ? "person.crop.circle.badge.plus" : "checkmark.seal")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -62,13 +64,14 @@ struct BreachDetailView: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
 
-            HStack {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Tracked estimate")
+                    Text("Estimate range")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text(Formatters.money(breach.estimatedPayout))
-                        .font(.title.weight(.bold).monospacedDigit())
+                    Text(breach.displayEstimate)
+                        .font(.title2.weight(.semibold).monospacedDigit())
+                        .foregroundStyle(.primary)
                         .minimumScaleFactor(0.7)
                     Text(breach.payoutCaveat)
                         .font(.caption2)
@@ -104,10 +107,18 @@ struct BreachDetailView: View {
             LabeledContent("Category", value: breach.category.label)
             LabeledContent("Proof of purchase", value: breach.requiresProof ? "May increase award" : "Often not required for base tier")
             LabeledContent("Status window", value: breach.isOpen ? "Open for claims" : "Closed")
-            LabeledContent("Listing source", value: breach.source.label)
-            Text(breach.source.detail)
+            LabeledContent("Trust", value: breach.trust.label)
+            LabeledContent("Catalog source", value: breach.source.label)
+            Text(breach.trust.detail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            if let reviewed = breach.lastReviewed {
+                LabeledContent("Last reviewed", value: Formatters.mediumDate.string(from: reviewed))
+            }
+            if let citation = breach.citationURL {
+                Link("Open citation / notice", destination: citation)
+                    .font(.subheadline.weight(.semibold))
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)

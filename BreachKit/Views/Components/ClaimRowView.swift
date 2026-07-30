@@ -3,6 +3,7 @@ import SwiftUI
 struct ClaimRowView: View {
     let breach: Breach
     let claim: Claim
+    @ScaledMetric(relativeTo: .title3) private var estimateSize: CGFloat = 17
 
     var body: some View {
         HStack(spacing: 14) {
@@ -25,12 +26,13 @@ struct ClaimRowView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 6) {
-                Text(Formatters.money(breach.estimatedPayout))
-                    .font(.title3.weight(.bold).monospacedDigit())
-                Text("est.")
+                StatusBadge(status: claim.status)
+                Text(breach.displayEstimate)
+                    .font(.system(size: estimateSize, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                Text("est. only")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
-                StatusBadge(status: claim.status)
             }
         }
         .padding(.vertical, 4)
@@ -41,7 +43,7 @@ struct ClaimRowView: View {
     private var accessibilityText: String {
         let total = breach.eligibilitySteps.count
         let done = Set(claim.completedSteps).count
-        return "\(breach.company), \(Formatters.money(breach.estimatedPayout)) estimate, \(Formatters.dueLabel(until: breach.deadline)), \(claim.status.label), checklist \(done) of \(total)"
+        return "\(breach.company), \(breach.displayEstimate) estimate only, \(Formatters.dueLabel(until: breach.deadline)), \(claim.status.label), checklist \(done) of \(total)"
     }
 
     private var dueColor: Color {
@@ -55,6 +57,7 @@ struct ClaimRowView: View {
 struct BreachRowView: View {
     let breach: Breach
     var status: ClaimStatus?
+    @ScaledMetric(relativeTo: .title3) private var estimateSize: CGFloat = 17
 
     var body: some View {
         HStack(spacing: 14) {
@@ -64,25 +67,23 @@ struct BreachRowView: View {
                 HStack(spacing: 8) {
                     Text(breach.company)
                         .font(.headline)
-                    ProofBadge(requiresProof: breach.requiresProof)
+                    TrustBadge(trust: breach.trust)
                 }
                 Text(breach.title)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
-                Text(Formatters.dueLabel(until: breach.deadline))
-                    .font(.caption)
-                    .foregroundStyle(breach.isOpen ? Theme.accent : Theme.expired)
+                HStack(spacing: 8) {
+                    ProofBadge(requiresProof: breach.requiresProof)
+                    Text(Formatters.dueLabel(until: breach.deadline))
+                        .font(.caption)
+                        .foregroundStyle(breach.isOpen ? Theme.accent : Theme.expired)
+                }
             }
 
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 6) {
-                Text(Formatters.money(breach.estimatedPayout))
-                    .font(.title3.weight(.bold).monospacedDigit())
-                Text("est.")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
                 if let status {
                     StatusBadge(status: status)
                 } else {
@@ -90,9 +91,16 @@ struct BreachRowView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.tertiary)
                 }
+                Text(breach.displayEstimate)
+                    .font(.system(size: estimateSize, weight: .semibold, design: .rounded).monospacedDigit())
+                    .foregroundStyle(.secondary)
+                Text("est. only")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(breach.company), \(breach.trust.label), \(breach.displayEstimate) estimate only, \(Formatters.dueLabel(until: breach.deadline))")
     }
 }

@@ -5,11 +5,13 @@ Everything to take Breach Kit from "ready" to "live on the App Store."
 **Key facts**
 - Bundle ID: `com.avaresearch.breachkit`
 - Home Screen: **Breach Kit** · Listing: **Breach Tracker - Breach Kit**
+- Version: **2.1.0**
 - Subscriptions (group `Breach Kit Pro`):
   - Monthly (primary): `com.avaresearch.breachkit.pro.monthly` — **$3.99/mo**, 7-day free trial
   - Yearly: `com.avaresearch.breachkit.pro.yearly` — **$24.99/yr**, 7-day free trial
 - Signing: `Config/Signing.xcconfig` (gitignored; copy from example)
 - Assets: `AppStore/` · Legal: `https://avaj845.github.io/Breach/`
+- Live catalog: `https://avaj845.github.io/Breach/catalog.json`
 
 ---
 
@@ -20,6 +22,7 @@ Everything to take Breach Kit from "ready" to "live on the App Store."
 - [ ] Pages: branch `main` / folder `/docs`
 - [ ] `https://avaj845.github.io/Breach/privacy.html`
 - [ ] `https://avaj845.github.io/Breach/terms.html`
+- [ ] `https://avaj845.github.io/Breach/catalog.json` (live settlement feed)
 
 ## 2 · Agreements, Tax & Banking
 - [ ] Paid Apps agreement + bank/tax (required for subscriptions)
@@ -54,7 +57,8 @@ Attach `Products.storekit` for local Sandbox testing (scheme already wired).
 
 ## Sanity checks (in repo)
 - [x] StoreKit 2 + monthly-first paywall
-- [x] Free tier useful (3 watches, browse, scan, 3-day reminder)
+- [x] Free unlimited watches + checklists + Live Activity
+- [x] Live catalog feed + trust tags + humble estimates
 - [x] Privacy manifest · bundled + hosted legal
 - [x] Happy-moment review prompt
 - [x] DEBUG Pro unlock omitted from Release logic path

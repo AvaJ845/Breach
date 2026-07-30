@@ -10,7 +10,7 @@ Breach Kit is **not** a law firm, claims administrator, attorney referral servic
 
 ## Catalog data
 
-Settlement listings may be curated or user-added. Curated listings organize publicly described opportunities; they may be illustrative. Official administrators are the source of truth.
+Settlement listings come from a **public catalog feed** (with a bundled offline copy) and optional user-added customs. Each listing carries a **trust tag** (admin-linked, curated public, sample preview, or you added). Amounts are **estimate ranges**, never guarantees. Official administrators are the source of truth.
 
 ## Always free
 

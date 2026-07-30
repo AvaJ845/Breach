@@ -17,11 +17,19 @@ Breach Kit does **not** collect personal data for advertising or analytics. Ther
 
 ## Email scans
 
-When you use Scan, matching runs **on-device** against Breach Kit’s curated catalog. Your email address is not transmitted to our servers for scanning — we do not operate a Breach Kit backend for scans.
+When you use Scan, matching runs **on-device** against Breach Kit’s settlement catalog (live feed when available, otherwise the bundled offline copy). Your email address is not transmitted to our servers for scanning — we do not operate a Breach Kit backend for scans.
+
+## Public catalog feed
+
+Breach Kit may download a **public settlement catalog** (`catalog.json`) from our GitHub Pages site so listings and trust tags stay current. That request does **not** include your email, notes, or claim status. If the feed is unavailable, the app uses the bundled catalog.
 
 ## Notifications
 
 If you enable deadline reminders, Breach Kit schedules **local notifications** via Apple’s UserNotifications framework. Notification content is generated on-device.
+
+## Live Activities
+
+If you watch a settlement due within about a week, Breach Kit may show a **Live Activity** on Lock Screen / Dynamic Island with company, due label, and estimate range. Content comes from on-device data.
 
 ## Links to claim sites
 

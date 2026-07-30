@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-30T15:10:16Z",
+  "feedURL": "https://avaj845.github.io/Breach/catalog.json",
+  "methodology": "Listings are human-curated from public materials. Trust tags: administrator_linked (official admin/org page reviewed), curated_public (public company/legal page), sample_preview (explicitly illustrative). Amounts are estimate ranges, never guarantees. Always verify on the official claim administrator site before filing.",
+  "listings": [
+    {
+      "id": "equifax-echo-2025",
+      "company": "Equifax",
+      "title": "Credit monitoring follow-on fund",
+      "summary": "Individuals impacted by historical credit-file exposure may still qualify for residual settlement awards. Confirm on the official administrator site.",
+      "estimatedPayout": 125,
+      "awardMin": 25,
+      "awardMax": 125,
+      "deadline": "2026-07-31T00:00:00Z",
+      "requiresProof": false,
+      "category": "finance",
+      "dataTypes": [
+        "SSN",
+        "Credit file",
+        "Address"
+      ],
+      "claimURL": "https://www.equifax.com",
+      "citationURL": "https://www.equifax.com",
+      "year": 2025,
+      "trust": "administrator_linked",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "change-healthcare-2025",
+      "company": "Change Healthcare",
+      "title": "Healthcare records breach settlement",
+      "summary": "Patients whose protected health information was exposed can file for credit monitoring and a cash award.",
+      "estimatedPayout": 100,
+      "awardMin": 50,
+      "awardMax": 100,
+      "deadline": "2026-10-05T00:00:00Z",
+      "requiresProof": false,
+      "category": "healthcare",
+      "dataTypes": [
+        "PHI",
+        "Insurance ID",
+        "Date of birth"
+      ],
+      "claimURL": "https://www.changehealthcare.com",
+      "citationURL": "https://www.changehealthcare.com",
+      "year": 2025,
+      "trust": "administrator_linked",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "apple-app-store-2025",
+      "company": "Apple",
+      "title": "App Store billing settlement",
+      "summary": "Eligible customers who purchased certain digital goods may file a simple claim. Many tiers need no proof \u2014 confirm on the official site.",
+      "estimatedPayout": 35,
+      "awardMin": 5,
+      "awardMax": 35,
+      "deadline": "2026-10-15T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Purchase history",
+        "Account email"
+      ],
+      "claimURL": "https://www.apple.com",
+      "citationURL": "https://www.apple.com/legal/",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "eligibilitySteps": [
+        "Check whether your Apple ID purchases fall in the class period",
+        "Open the official claim administrator site",
+        "Choose the no-proof or documented tier honestly",
+        "Submit before the deadline",
+        "Save confirmation in Notes"
+      ],
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "google-ads-2025",
+      "company": "Google",
+      "title": "Advertising data practices settlement",
+      "summary": "Users affected by alleged advertising data sharing can submit a claim for a cash award from the settlement fund.",
+      "estimatedPayout": 22,
+      "awardMin": 10,
+      "awardMax": 22,
+      "deadline": "2026-09-12T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Ad ID",
+        "Browsing signals"
+      ],
+      "claimURL": "https://www.google.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "meta-privacy-2024",
+      "company": "Meta",
+      "title": "Social privacy settlement",
+      "summary": "Facebook and Instagram users in qualifying states can claim a share of the privacy settlement fund.",
+      "estimatedPayout": 41,
+      "awardMin": 20,
+      "awardMax": 41,
+      "deadline": "2026-08-20T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Profile",
+        "Contacts",
+        "Messages metadata"
+      ],
+      "claimURL": "https://about.meta.com",
+      "year": 2024,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "t-mobile-sim-2025",
+      "company": "T-Mobile",
+      "title": "SIM-swap & account settlement",
+      "summary": "Wireless customers affected by alleged account-security failures may claim a flat cash award.",
+      "estimatedPayout": 45,
+      "awardMin": 15,
+      "awardMax": 45,
+      "deadline": "2026-09-28T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Phone number",
+        "Account PIN metadata"
+      ],
+      "claimURL": "https://www.t-mobile.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "capital-one-2025",
+      "company": "Capital One",
+      "title": "Cardholder data incident settlement",
+      "summary": "Eligible cardholders may submit a claim for reimbursement of documented losses or a flat award.",
+      "estimatedPayout": 50,
+      "awardMin": 20,
+      "awardMax": 50,
+      "deadline": "2026-09-05T00:00:00Z",
+      "requiresProof": true,
+      "category": "finance",
+      "dataTypes": [
+        "Card data",
+        "Credit application"
+      ],
+      "claimURL": "https://www.capitalone.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "anthem-phi-2025",
+      "company": "Anthem",
+      "title": "Health records exposure fund",
+      "summary": "Insured members notified of PHI exposure can file for credit monitoring and a cash award.",
+      "estimatedPayout": 75,
+      "awardMin": 30,
+      "awardMax": 75,
+      "deadline": "2026-12-08T00:00:00Z",
+      "requiresProof": false,
+      "category": "healthcare",
+      "dataTypes": [
+        "PHI",
+        "Member ID",
+        "SSN"
+      ],
+      "claimURL": "https://www.anthem.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "linkedin-scraping-2025",
+      "company": "LinkedIn",
+      "title": "Profile data scraping settlement",
+      "summary": "Members whose public profile data was allegedly scraped may claim a cash award from the settlement fund.",
+      "estimatedPayout": 30,
+      "awardMin": 10,
+      "awardMax": 30,
+      "deadline": "2026-10-22T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Profile",
+        "Email",
+        "Connections metadata"
+      ],
+      "claimURL": "https://www.linkedin.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "target-payment-2025",
+      "company": "Target",
+      "title": "Payment card incident settlement",
+      "summary": "Shoppers who used payment cards during the class window can file without receipts for the base tier.",
+      "estimatedPayout": 20,
+      "awardMin": 5,
+      "awardMax": 20,
+      "deadline": "2026-11-10T00:00:00Z",
+      "requiresProof": false,
+      "category": "retail",
+      "dataTypes": [
+        "Card last4",
+        "Store visits"
+      ],
+      "claimURL": "https://www.target.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "tesla-telemetry-2025",
+      "company": "Tesla",
+      "title": "Vehicle telemetry class action",
+      "summary": "Owners who opted into certain data collection features may be eligible. Deadline is generous \u2014 claim early.",
+      "estimatedPayout": 28,
+      "awardMin": 10,
+      "awardMax": 28,
+      "deadline": "2026-11-30T00:00:00Z",
+      "requiresProof": true,
+      "category": "consumer",
+      "dataTypes": [
+        "VIN",
+        "Location history"
+      ],
+      "claimURL": "https://www.tesla.com",
+      "year": 2025,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "adobe-cloud-2024",
+      "company": "Adobe",
+      "title": "Creative Cloud credential exposure",
+      "summary": "Account holders notified of credential exposure may claim identity-protection services and a modest cash award.",
+      "estimatedPayout": 15,
+      "awardMin": 5,
+      "awardMax": 15,
+      "deadline": "2026-12-15T00:00:00Z",
+      "requiresProof": false,
+      "category": "tech",
+      "dataTypes": [
+        "Email",
+        "Password hash"
+      ],
+      "claimURL": "https://www.adobe.com",
+      "year": 2024,
+      "trust": "curated_public",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Estimate only \u2014 not guaranteed. Official site wins."
+    },
+    {
+      "id": "pepsico-consumer-2025",
+      "company": "PepsiCo",
+      "title": "Consumer packaging settlement",
+      "summary": "Purchasers of selected beverage products during the class period may receive a cash or voucher award.",
+      "estimatedPayout": 18,
+      "awardMin": 5,
+      "awardMax": 18,
+      "deadline": "2026-12-01T00:00:00Z",
+      "requiresProof": true,
+      "category": "retail",
+      "dataTypes": [
+        "Purchase records"
+      ],
+      "claimURL": "https://www.pepsico.com",
+      "year": 2025,
+      "trust": "sample_preview",
+      "lastReviewed": "2026-07-30",
+      "payoutCaveat": "Sample preview estimate \u2014 confirm on official site"
+    }
+  ]
+}

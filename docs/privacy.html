@@ -33,11 +33,19 @@ footer{margin-top:3rem;font-size:.85rem;color:#666}
 
 <h2>Email scans</h2>
 
-<p>When you use Scan, matching runs <strong>on-device</strong> against Breach Kit’s curated catalog. Your email address is not transmitted to our servers for scanning — we do not operate a Breach Kit backend for scans.</p>
+<p>When you use Scan, matching runs <strong>on-device</strong> against Breach Kit’s settlement catalog (live feed when available, otherwise the bundled offline copy). Your email address is not transmitted to our servers for scanning — we do not operate a Breach Kit backend for scans.</p>
+
+<h2>Public catalog feed</h2>
+
+<p>Breach Kit may download a <strong>public settlement catalog</strong> (<code>catalog.json</code>) from our GitHub Pages site so listings and trust tags stay current. That request does <strong>not</strong> include your email, notes, or claim status. If the feed is unavailable, the app uses the bundled catalog.</p>
 
 <h2>Notifications</h2>
 
 <p>If you enable deadline reminders, Breach Kit schedules <strong>local notifications</strong> via Apple’s UserNotifications framework. Notification content is generated on-device.</p>
+
+<h2>Live Activities</h2>
+
+<p>If you watch a settlement due within about a week, Breach Kit may show a <strong>Live Activity</strong> on Lock Screen / Dynamic Island with company, due label, and estimate range. Content comes from on-device data.</p>
 
 <h2>Purchases</h2>
 

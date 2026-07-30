@@ -67,6 +67,34 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Catalog") {
+                    LabeledContent("Status") {
+                        Text(store.catalogStatusMessage)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    if let synced = store.catalogSyncedAt {
+                        LabeledContent("Last sync") {
+                            Text(Formatters.mediumDate.string(from: synced))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    Button {
+                        Task { await store.refreshCatalog() }
+                    } label: {
+                        if store.isRefreshingCatalog {
+                            ProgressView()
+                        } else {
+                            Label("Refresh live catalog", systemImage: "arrow.clockwise")
+                        }
+                    }
+                    .disabled(store.isRefreshingCatalog)
+                    Link("Open public feed", destination: AppNetwork.catalogURL)
+                    Text("Downloads public listings only — not your notes, email, or claim status.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
                 Section("Privacy") {
                     LabeledContent("Account") { Text("None").foregroundStyle(.secondary) }
                     LabeledContent("Tracking") { Text("Off").foregroundStyle(.secondary) }

@@ -1,13 +1,6 @@
 import WidgetKit
 import SwiftUI
 
-@main
-struct BreachKitWidgetBundle: WidgetBundle {
-    var body: some Widget {
-        DueSoonWidget()
-    }
-}
-
 struct DueSoonEntry: TimelineEntry {
     let date: Date
     let glance: WalletGlanceSnapshot?
@@ -28,7 +21,9 @@ struct DueSoonProvider: TimelineProvider {
                     statusLabel: "Watching",
                     breachID: "demo"
                 ),
-                updatedAt: .now
+                updatedAt: .now,
+                catalogSyncedAt: .now,
+                catalogTrustSummary: "Live catalog"
             )
         )
     }
@@ -57,6 +52,7 @@ struct DueSoonWidget: Widget {
 }
 
 struct DueSoonWidgetView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let entry: DueSoonEntry
 
     var body: some View {
@@ -69,17 +65,20 @@ struct DueSoonWidgetView: View {
                     Spacer()
                     Image(systemName: "shield.checkered")
                         .foregroundStyle(Color(red: 0.11, green: 0.42, blue: 0.78))
+                        .accessibilityHidden(true)
                 }
                 Text(next.company)
                     .font(.headline)
-                    .lineLimit(1)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                    .minimumScaleFactor(0.8)
                 Text(Formatters.dueLabel(until: next.deadline))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
                 HStack(alignment: .firstTextBaseline) {
-                    Text(Formatters.money(next.amount))
-                        .font(.title3.weight(.bold).monospacedDigit())
+                    Text("~\(Formatters.money(next.amount))")
+                        .font(.title3.weight(.semibold).monospacedDigit())
+                        .minimumScaleFactor(0.7)
                     Text("est.")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -88,6 +87,9 @@ struct DueSoonWidgetView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
+                Text("Not guaranteed")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
             .accessibilityElement(children: .combine)
         } else {

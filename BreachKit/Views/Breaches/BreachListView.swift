@@ -34,7 +34,11 @@ struct BreachListView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
 
-                    CatalogHonestyBanner()
+                    CatalogHonestyBanner(
+                        statusMessage: store.catalogStatusMessage,
+                        syncedAt: store.catalogSyncedAt,
+                        methodology: store.catalogMethodology
+                    )
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -62,6 +66,9 @@ struct BreachListView: View {
             .listStyle(.insetGrouped)
             .navigationTitle("Settlements")
             .searchable(text: $query, prompt: "Company or settlement")
+            .refreshable {
+                await store.refreshCatalog()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {

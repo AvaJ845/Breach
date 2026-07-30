@@ -10,8 +10,8 @@ configFiles:
   Release: Config/Base.xcconfig
 settings:
   base:
-    MARKETING_VERSION: "2.0.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "2.1.0"
+    CURRENT_PROJECT_VERSION: "4"
     SWIFT_VERSION: "5.9"
     CODE_SIGN_STYLE: Automatic
     GENERATE_INFOPLIST_FILE: YES
@@ -54,6 +54,7 @@ targets:
           - UIInterfaceOrientationPortrait
         NSHumanReadableCopyright: "Privacy-first breach & settlement tracking."
         ITSAppUsesNonExemptEncryption: false
+        NSSupportsLiveActivities: true
         UIBackgroundModes:
           - fetch
     settings:
@@ -81,6 +82,7 @@ targets:
       - path: BreachKit/Support/AppGroup.swift
       - path: BreachKit/Support/Formatters.swift
       - path: BreachKit/Models/Breach.swift
+      - path: BreachKit/Models/DeadlineActivityAttributes.swift
     settings:
       base:
         PRODUCT_NAME: BreachKitWidget
@@ -89,6 +91,8 @@ targets:
         INFOPLIST_FILE: BreachKitWidget/Info.plist
         CODE_SIGN_ENTITLEMENTS: BreachKitWidget/BreachKitWidget.entitlements
         SKIP_INSTALL: YES
+        MARKETING_VERSION: "2.1.0"
+        CURRENT_PROJECT_VERSION: "4"
     postBuildScripts:
       - name: Strip extended attributes (codesign detritus)
         script: /usr/bin/xattr -rc "${CODESIGNING_FOLDER_PATH}"

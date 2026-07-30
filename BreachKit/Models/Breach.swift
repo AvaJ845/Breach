@@ -1,54 +1,90 @@
 import Foundation
 
-/// A publicly described settlement opportunity users can organize and claim.
-/// Amounts and steps are guidance — official claim sites are the source of truth.
+/// A publicly described settlement opportunity.
+/// Amounts are guidance ranges — official claim sites are the source of truth.
 struct Breach: Identifiable, Hashable, Codable, Sendable {
     let id: String
     let company: String
     let title: String
     let summary: String
-    /// Typical / illustrative award amount — never a guarantee.
+    /// Midpoint / typical estimate — never a guarantee.
     let estimatedPayout: Double
+    /// Optional honest range for Apple-grade humility.
+    let awardMin: Double?
+    let awardMax: Double?
     let deadline: Date
     let requiresProof: Bool
     let category: Category
     let dataTypes: [String]
     let claimURL: URL?
+    /// Secondary citation (press release, court docket, admin FAQ).
+    let citationURL: URL?
     let year: Int
-    /// Where this listing came from.
     let source: Source
-    /// User-facing checklist to finish a claim (help them act, not just track).
+    let trust: Trust
     let eligibilitySteps: [String]
-    /// Honest framing under the dollar amount.
     let payoutCaveat: String
+    /// When this listing was last human-reviewed (ISO from feed).
+    let lastReviewed: Date?
 
     enum Source: String, Codable, Sendable {
         case curated
         case custom
+        case remote
 
         var label: String {
             switch self {
-            case .curated: return "Curated listing"
+            case .curated: return "Bundled catalog"
             case .custom: return "Added by you"
+            case .remote: return "Live catalog feed"
+            }
+        }
+    }
+
+    /// How much we stand behind the listing — shown prominently.
+    enum Trust: String, Codable, Sendable, CaseIterable {
+        /// Official administrator / court page linked and reviewed.
+        case administratorLinked = "administrator_linked"
+        /// Public reporting; admin link may be general.
+        case curatedPublic = "curated_public"
+        /// Explicitly illustrative for demo / offline.
+        case samplePreview = "sample_preview"
+        case userProvided = "user_provided"
+
+        var label: String {
+            switch self {
+            case .administratorLinked: return "Admin-linked"
+            case .curatedPublic: return "Curated public"
+            case .samplePreview: return "Sample preview"
+            case .userProvided: return "You added"
             }
         }
 
         var detail: String {
             switch self {
-            case .curated:
-                return "Organized from publicly described settlements. Verify every detail on the official claim site."
-            case .custom:
-                return "You added this. Breach Kit doesn’t verify it — use the official administrator."
+            case .administratorLinked:
+                return "Reviewed against a linked official claim administrator or court notice. Still verify eligibility yourself."
+            case .curatedPublic:
+                return "Organized from public reporting. Confirm every detail on the official claim site before filing."
+            case .samplePreview:
+                return "Illustrative listing for organizing practice — not a live settlement notice."
+            case .userProvided:
+                return "You entered this. Breach Kit does not verify it."
+            }
+        }
+
+        var symbol: String {
+            switch self {
+            case .administratorLinked: return "checkmark.seal.fill"
+            case .curatedPublic: return "doc.text.magnifyingglass"
+            case .samplePreview: return "eye.slash"
+            case .userProvided: return "person.crop.circle.badge.plus"
             }
         }
     }
 
     enum Category: String, Codable, CaseIterable, Sendable {
-        case consumer
-        case healthcare
-        case finance
-        case tech
-        case retail
+        case consumer, healthcare, finance, tech, retail
 
         var label: String {
             switch self {
@@ -73,36 +109,53 @@ struct Breach: Identifiable, Hashable, Codable, Sendable {
 
     var isOpen: Bool { deadline > .now }
 
+    var displayEstimate: String {
+        if let min = awardMin, let max = awardMax, max > min {
+            return "~\(Formatters.money(min))–\(Formatters.money(max))"
+        }
+        return "~\(Formatters.money(estimatedPayout))"
+    }
+
     init(
         id: String,
         company: String,
         title: String,
         summary: String,
         estimatedPayout: Double,
+        awardMin: Double? = nil,
+        awardMax: Double? = nil,
         deadline: Date,
         requiresProof: Bool,
         category: Category,
         dataTypes: [String],
         claimURL: URL?,
+        citationURL: URL? = nil,
         year: Int,
         source: Source = .curated,
+        trust: Trust = .samplePreview,
         eligibilitySteps: [String]? = nil,
-        payoutCaveat: String = "Estimate only — not guaranteed"
+        payoutCaveat: String = "Estimate only — not guaranteed",
+        lastReviewed: Date? = nil
     ) {
         self.id = id
         self.company = company
         self.title = title
         self.summary = summary
         self.estimatedPayout = estimatedPayout
+        self.awardMin = awardMin
+        self.awardMax = awardMax
         self.deadline = deadline
         self.requiresProof = requiresProof
         self.category = category
         self.dataTypes = dataTypes
         self.claimURL = claimURL
+        self.citationURL = citationURL
         self.year = year
         self.source = source
+        self.trust = trust
         self.eligibilitySteps = eligibilitySteps ?? Breach.defaultSteps(requiresProof: requiresProof)
         self.payoutCaveat = payoutCaveat
+        self.lastReviewed = lastReviewed
     }
 
     init(from decoder: Decoder) throws {
@@ -112,16 +165,23 @@ struct Breach: Identifiable, Hashable, Codable, Sendable {
         title = try c.decode(String.self, forKey: .title)
         summary = try c.decode(String.self, forKey: .summary)
         estimatedPayout = try c.decode(Double.self, forKey: .estimatedPayout)
+        awardMin = try c.decodeIfPresent(Double.self, forKey: .awardMin)
+        awardMax = try c.decodeIfPresent(Double.self, forKey: .awardMax)
         deadline = try c.decode(Date.self, forKey: .deadline)
         requiresProof = try c.decode(Bool.self, forKey: .requiresProof)
         category = try c.decode(Category.self, forKey: .category)
         dataTypes = try c.decode([String].self, forKey: .dataTypes)
         claimURL = try c.decodeIfPresent(URL.self, forKey: .claimURL)
+        citationURL = try c.decodeIfPresent(URL.self, forKey: .citationURL)
         year = try c.decode(Int.self, forKey: .year)
-        source = try c.decodeIfPresent(Source.self, forKey: .source) ?? (id.hasPrefix("custom-") ? .custom : .curated)
+        source = try c.decodeIfPresent(Source.self, forKey: .source)
+            ?? (id.hasPrefix("custom-") ? .custom : .curated)
+        trust = try c.decodeIfPresent(Trust.self, forKey: .trust)
+            ?? (id.hasPrefix("custom-") ? .userProvided : .samplePreview)
         let decodedSteps = try c.decodeIfPresent([String].self, forKey: .eligibilitySteps)
         eligibilitySteps = decodedSteps ?? Breach.defaultSteps(requiresProof: requiresProof)
         payoutCaveat = try c.decodeIfPresent(String.self, forKey: .payoutCaveat) ?? "Estimate only — not guaranteed"
+        lastReviewed = try c.decodeIfPresent(Date.self, forKey: .lastReviewed)
     }
 
     static func defaultSteps(requiresProof: Bool) -> [String] {
@@ -140,11 +200,7 @@ struct Breach: Identifiable, Hashable, Codable, Sendable {
 }
 
 enum ClaimStatus: String, Codable, CaseIterable, Sendable {
-    case watching
-    case notified
-    case claimed
-    case paid
-    case expired
+    case watching, notified, claimed, paid, expired
 
     var label: String {
         switch self {
@@ -176,7 +232,7 @@ enum ClaimStatus: String, Codable, CaseIterable, Sendable {
     var isFinished: Bool {
         switch self {
         case .paid, .expired: return true
-        case .watching, .notified, .claimed: return false
+        default: return false
         }
     }
 }
@@ -188,7 +244,6 @@ struct Claim: Identifiable, Hashable, Codable, Sendable {
     var notedAt: Date
     var claimedAt: Date?
     var notes: String
-    /// Indices of completed eligibility checklist steps.
     var completedSteps: [Int]
 
     init(
@@ -224,18 +279,14 @@ struct Claim: Identifiable, Hashable, Codable, Sendable {
 }
 
 struct WalletSummary: Equatable, Sendable {
-    /// Sum of tracked estimate amounts — guidance only.
     var trackedEstimates: Double
     var claimedCount: Int
     var notifiedCount: Int
     var watchingCount: Int
     var paidCount: Int
-
-    /// Back-compat alias used in older call sites.
     var estimatedPayout: Double { trackedEstimates }
 }
 
-/// Snapshot shared with the Home Screen widget / App Intents.
 struct DeadlineSnapshot: Codable, Hashable, Sendable {
     var company: String
     var amount: Double
@@ -250,4 +301,6 @@ struct WalletGlanceSnapshot: Codable, Hashable, Sendable {
     var dueSoonCount: Int
     var next: DeadlineSnapshot?
     var updatedAt: Date
+    var catalogSyncedAt: Date?
+    var catalogTrustSummary: String?
 }

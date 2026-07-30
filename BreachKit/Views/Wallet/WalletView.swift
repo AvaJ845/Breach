@@ -74,7 +74,11 @@ struct WalletView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
 
-                CatalogHonestyBanner()
+                CatalogHonestyBanner(
+                    statusMessage: store.catalogStatusMessage,
+                    syncedAt: store.catalogSyncedAt,
+                    methodology: store.catalogMethodology
+                )
                     .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 8, trailing: 16))
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
@@ -122,6 +126,9 @@ struct WalletView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .refreshable {
+            await store.refreshCatalog()
+        }
     }
 
     private var emptyState: some View {
